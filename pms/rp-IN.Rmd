@@ -1,0 +1,89 @@
+---
+title: PMS Surveillance
+subtitle: StockViz
+editor_options:
+  chunk_output_type: console
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    self_contained: false
+    lib_dir: analysis/rmdlib		
+    includes:
+        in_header: header.html
+        after_body: ../footer.html
+---
+
+```{r dt_chunk, include=FALSE}
+
+createdDate <- gsub(" 0", " ",format(Sys.Date(), "%B %d, %Y"))
+
+```
+
+---
+date: `r createdDate`
+---
+
+*Source: [SEBI Portfolio Manager Monthly Report ](https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doPmr=yes) *
+
+```{r, calc_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+idPath <- "."
+load(paste0(idPath, "/active_pms.RData"))
+
+library('RODBC')
+library('RPostgres')
+library('quantmod')
+library('tidyverse')
+
+library('xtable')
+library('knitr')
+library('kableExtra')
+library('DT')
+
+options(stringsAsFactors = FALSE)
+options("scipen"=100)
+
+#source("C:/stockviz/r/config.r")
+source("/mnt/hollandr/config.r")
+
+pmsMeta <- dbGetQuery(pgCon, "select * from sebi_pms_meta")
+
+totalAumDf <- dbGetQuery(pgCon, "select id, yr, mth, spdData ->> 'Total' aum
+                         from sebi_pms_data spd, 
+                         jsonb_array_elements(spd.val) spdMain, 
+                         jsonb_array_elements(spdMain -> 'data') spdData
+                         where spdMain ->> 'main' like '%data for disc%' 
+                         and spdMain ->> 'sub' like '%break-up of clients%' 
+                         and spdData ->> 'Particulars' like '%aum%'")
+
+totalAumDf <- totalAumDf |> mutate(aum = as.numeric(aum), 
+                                   dt = as.Date(sprintf("%d-%d-%d", yr, mth, 
+                                                        days_in_month(as.Date(sprintf("%d-%d-1", yr, mth))))))
+
+grandTotalAum <- totalAumDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
+  inner_join(totalAumDf, by=join_by(id, maxDt == dt)) |> filter(aum > 0) |>
+  inner_join(pmsMeta, by=join_by(id)) |>
+  inner_join(idCnts, by=join_by(id)) |>
+  select(pms_name, maxDt, aum) |> 
+  rename(Name = pms_name, AsOf = maxDt, AUM = aum) |>
+  mutate(AUM = round(AUM, 0), more = "") |>
+  arrange(desc(AUM))
+
+
+aumDT <- datatable(grandTotalAum, rownames = F, escape = c(rep(T, ncol(grandTotalAum)-1), F), 
+                   class = 'cell-border stripe', filter='none', 
+                   options = list(dom = 't', pageLength = nrow(grandTotalAum)))
+
+```
+
+## Discretionary Services
+
+### Total Assets Under Management
+
+```{r, aum_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+
+htmltools::tagList(
+  print(aumDT)
+)
+
+```
