@@ -45,20 +45,14 @@ source("/mnt/hollandr/config.r")
 
 pmsMeta <- dbGetQuery(pgCon, "select * from sebi_pms_meta")
 
-totalAumDf <- dbGetQuery(pgCon, "select id, yr, mth, spdData ->> 'Total' aum
-                         from sebi_pms_data spd, 
-                         jsonb_array_elements(spd.val) spdMain, 
-                         jsonb_array_elements(spdMain -> 'data') spdData
-                         where spdMain ->> 'main' like '%data for disc%' 
-                         and spdMain ->> 'sub' like '%break-up of clients%' 
-                         and spdData ->> 'Particulars' like '%aum%'")
+totalAumDf <- dbGetQuery(pgCon, "select id, yr, mth, ln ->> 'total' aum 
+                                  from sebi_pms_data spd, 
+                                  jsonb_array_elements(val->'summary'->'aumBreakup') as ln
+                                  where ln->>'serviceType' = 'Discretionary'")
 
-invAppDf <- dbGetQuery(pgCon, "select id, yr, mth, spdData ->> 'InvestmentApproach' strategy
+invAppDf <- dbGetQuery(pgCon, "select id, yr, mth, ln ->> 'investmentApproach' strategy
                          from sebi_pms_data spd, 
-                         jsonb_array_elements(spd.val) spdMain, 
-                         jsonb_array_elements(spdMain -> 'data') spdData
-                         where spdMain ->> 'main' like '%data for disc%' 
-                         and spdMain ->> 'sub' like '%funds%inflow%outflow%'")
+                         jsonb_array_elements(val->'discretionaryServices'->'fundsInflow') as ln")
 
 totalAumDf <- totalAumDf |> mutate(aum = as.numeric(aum), 
                                    dt = as.Date(sprintf("%d-%d-%d", yr, mth, 
@@ -94,7 +88,7 @@ aumDT <- datatable(toDisplay, rownames = F, escape = c(rep(T, ncol(grandTotalAum
 
 ## Discretionary Services
 
-### Total Assets Under Management
+### Total Number of Strategies and Assets Under Management
 
 ```{r, aum_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
 
