@@ -7,6 +7,7 @@ library('tidyverse')
 library('ggthemes')
 library('viridis')
 library('patchwork')
+library('tidyjson')
 library('jsonlite')
 
 reportPath <- "analysis/plots"
@@ -38,32 +39,63 @@ fileTracker <- data.frame(ID = 0, STRAT_FILE = "", STRAT_TITLE = "")
 
 for(i in 1:nrow(activePms)){
   metaId <- activePms$id[i]
-  strategyReturnsDf <- dbGetQuery(pgCon, "select yr, mth, di.value strategy, spdData ->> 'TwrrReturns1 Month' ret_pct
-                                from sebi_pms_data spd, 
-                                  jsonb_array_elements(spd.val) spdMain, 
-                                  jsonb_array_elements(spdMain -> 'data') spdData, 
-                                  jsonb_each_text(spdData) as di(key, value) 
-                                where id = $1 
-                                  and spdMain ->> 'main' like '%data for disc%' 
-                                  and spdMain ->> 'sub' like '%performance data%' 
-                                  and di.key like '%Strategy%' 
-                                  and di.value not like '%benchmark%' 
-                                  and spdData -> 'TwrrReturns1 Month' is not null;",
+  
+  strategyReturnsDf1 <- dbGetQuery(pgCon, "select yr, mth, ln->>'investmentApproach' name, ln->>'aumINRCr' aumINRCr, ln->'returns'->>'oneMonth' ret_pct 
+                                  from sebi_pms_data spd, 
+                                    jsonb_array_elements(val->'discretionaryServices'->'performanceData') as ln 
+                                  where id = $1
+                                  order by yr, mth",
                                 params = list(metaId))
   
-  strategyReturns <- strategyReturnsDf |> mutate(ret = as.numeric(ret_pct)/100, 
-                                               dt = as.Date(sprintf("%d-%d-%d", yr, mth, 
-                                                                    days_in_month(as.Date(sprintf("%d-%d-1", yr, mth))))))
+  stratRetTb1 <- as_tibble(strategyReturnsDf1) |> filter(!is.na(name) & !is.na(ret_pct))
   
+  strategyReturnsDf2 <- dbGetQuery(pgCon, "select yr, mth, val->'discretionaryServices'->'performanceData' pd 
+                                  from sebi_pms_data spd 
+                                  where id = $1
+                                  order by yr, mth",
+                                params = list(metaId))
+  
+  stratRetTb <- tibble()
+  for(j in 1:nrow(strategyReturnsDf2)){
+    tryCatch({
+    tj <- as.tbl_json(strategyReturnsDf2$pd[j]) %>% gather_array
+    if(nrow(tj) == 0) next
+    
+    tjrets <- tj %>% spread_all %>%
+      enter_object(approaches) %>% gather_array %>%
+      spread_all %>%
+      select(strategy, name, aumINRCr, returns.1Month)
+    
+    retTb <- as_tibble(tjrets)
+    retTb$yr <- strategyReturnsDf2$yr[j]
+    retTb$mth <- strategyReturnsDf2$mth[j]
+    
+    stratRetTb <- rbind(stratRetTb, retTb)
+    }, error = \(x) {})
+  }
+  
+  stratRetTb1$strategy <- NA
+  for(j in 1:nrow(stratRetTb1)){
+    if(!is.na(stratRetTb1$strategy[j])) next
+    tryCatch({
+      stratRetTb1$strategy[j] <- ((stratRetTb |> filter(name == stratRetTb1$name[j]) |> select(strategy))[1,1])[[1]]
+    }, error = \(x){})
+  }
+  
+  
+  stratRetTb <- rbind(stratRetTb1, stratRetTb |> rename(auminrcr = aumINRCr, ret_pct = returns.1Month))
   stratNameAlias <- dbGetQuery(pgCon, "select strategy_alias from sebi_pms_aux where id = $1", params = list(metaId))
-  if(nrow(stratNameAlias) > 1){
+  if(nrow(stratNameAlias) > 0){
     aliases <- jsonlite::fromJSON(stratNameAlias$strategy_alias[1])
     for(ai in seq_along(aliases)){
-      strategyReturns <- strategyReturns |> mutate(strategy = str_replace(strategy, paste(aliases$alias[[ai]], collapse="|"), aliases$primary[[ai]]))
+      stratRetTb <- stratRetTb |> mutate(name = str_replace(name, regex(paste(aliases$alias[[ai]], collapse="|"), ignore_case = TRUE), aliases$primary[[ai]]))
     }
   }
-  strategyRets <- strategyReturns |> select(-c(yr, mth, ret_pct)) |>
-    pivot_wider(id_cols = dt, names_from = strategy, values_from = ret)
+  strategyRets <- stratRetTb |> mutate(ret = as.numeric(ret_pct)/100, 
+                                       dt = as.Date(sprintf("%d-%d-%d", yr, mth,
+                                                            days_in_month(as.Date(sprintf("%d-%d-1", yr, mth)))))) |> 
+    select(dt, name, ret) |> distinct(dt, name, .keep_all = TRUE) |>
+    pivot_wider(id_cols = dt, names_from = name, values_from = ret)
   
   names2Remove <- (strategyRets |> summarise(across(everything(), ~sum(is.na(.)))) |>
     pivot_longer(cols = everything()) |>
