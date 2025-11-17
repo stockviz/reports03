@@ -68,7 +68,7 @@ grandTotalAum <- totalAumDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
   inner_join(totalAumDf, by=join_by(id, maxDt == dt)) |> filter(aum > 0) |>
   inner_join(pmsMeta, by=join_by(id)) |>
   inner_join(idCnts, by=join_by(id)) |>
-  select(id, pms_name, maxDt, aum)
+  select(id, sebi_id, pms_name, maxDt, aum)
   
 totalInvApp <- invAppDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
   inner_join(invAppDf, by=join_by(id, maxDt == dt)) |>
@@ -79,13 +79,16 @@ totalInvApp <- invAppDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
 toDisplay <- grandTotalAum |>
   inner_join(totalInvApp, by=join_by(id)) |>
   rename(Name = pms_name, AsOf = maxDt, AUM = aum) |>
-  select(-id) |>
-  mutate(AUM = round(AUM, 0)) |>
+  mutate(AUM = round(AUM, 0), 
+         more = if_else(file.exists(sprintf("analysis/rp-PMS.%s.html", sebi_id)), 
+							sprintf("<a href='/reports03/pms/analysis/rp-PMS.%s.html'>>></a>", sebi_id), 
+							'')) |>
+  select(-c(sebi_id, id)) |>
   arrange(desc(AUM))
   
-aumDT <- datatable(toDisplay, rownames = F,  
+aumDT <- datatable(toDisplay, rownames = F, escape = c(rep(T, ncol(toDisplay)-1), F),   
                    class = 'cell-border stripe', filter='none', 
-                   options = list(dom = 't', pageLength = nrow(grandTotalAum))) %>%
+                   options = list(dom = 't', pageLength = nrow(toDisplay))) %>%
         formatRound(c('AUM'), 2)
 
 strategySharpe <- fileTracker |> filter(as.Date(AS_OF) >= Sys.Date() - 3*30) |>
@@ -110,6 +113,16 @@ sharpeDT <- datatable(strategySharpe, rownames = F, escape = c(rep(T, ncol(strat
 
 ## Discretionary Services
 
+### Assets Under Management
+
+```{r, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+
+htmltools::tagList(
+  print(aumDT)
+)
+
+```
+
 ### Strategy Assets Under Management & Performance
 
 ```{r, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
@@ -119,12 +132,4 @@ htmltools::tagList(
 )
 
 ```
-### Total Number of Strategies and Assets Under Management
 
-```{r, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
-
-htmltools::tagList(
-  print(aumDT)
-)
-
-```
