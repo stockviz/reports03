@@ -81,7 +81,7 @@ idCnts <- dbGetQuery(pgCon, "select id,  count(val) cnt, max(yr) yr from sebi_pm
 activePms <- idCnts |> filter(cnt >= 12 & yr >= year(today) -1)
 
 getStats <- function(){
-  fileTracker <- data.frame(ID = 0, SEBI_ID = "", PMS_NAME = "", STRAT_FILE = "", STRAT_TITLE = "", ASSET_CLASS = "", AUM = 0.0, SHARPE = 0.0, IR = 0.0, RET = 0.0, AS_OF = "")
+  fileTracker <- data.frame(ID = 0, SEBI_ID = "", PMS_NAME = "", STRAT_FILE = "", STRAT_TITLE = "", ASSET_CLASS = "", AUM = 0.0, SHARPE = 0.0, IR = 0.0, RET = 0.0, ST_DT = "", AS_OF = "")
   
   for(i in 1:nrow(activePms)){
     metaId <- activePms$id[i]
@@ -207,12 +207,13 @@ getStats <- function(){
       }, error = \(x) {})
       
       srXts <- xts(strategyRets[,j], strategyRets$dt)
-      maxDt <- max(index(srXts))
-  
-      names(srXts)[1] <- "Strategy"
-      
       srXts <- srXts[srXts < 5]
       
+      maxDt <- max(index(srXts))
+      minDt <- min(index(srXts))
+  
+      names(srXts)[1] <- "Strategy"
+
       if(is.na(sebiClass)){
         retXts <- merge(srXts, monthlyMktBenchRets[,1])
         retXts <- na.omit(retXts)
@@ -249,7 +250,7 @@ getStats <- function(){
                             sprintf("%s/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFname))
       }
       
-      fileTracker <- rbind(fileTracker, c(metaId, sebiId, pmsName, stratFname, str_to_title(stratTname), sebiClass, aum, fundSr, fundIr, ret, as.character(maxDt)))
+      fileTracker <- rbind(fileTracker, c(metaId, sebiId, pmsName, stratFname, str_to_title(stratTname), sebiClass, aum, fundSr, fundIr, ret, as.character(minDt), as.character(maxDt)))
     }
   }
   

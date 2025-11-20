@@ -63,6 +63,7 @@ for(i in 1:nrow(funds)){
   sharpe <- as.numeric(funds$SHARPE[i])
   ir <- as.numeric(funds$IR[i])
   asof <- funds$AS_OF[i]
+  startDt <- funds$ST_DT[i]
   
   cat("##", stratName, "\n")
   
@@ -76,7 +77,7 @@ for(i in 1:nrow(funds)){
   if(!is.na(asset) && asset == 'EQUITY'){
     cat("![](", sprintf("%s/plots/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFile), ")")
   }
-  cat("*as of:", asof, "*")
+  cat("*", startDt, " - ", asof, "*")
   cat('\\')
   cat("\n\n")
 }
