@@ -288,10 +288,10 @@ getStats <- function(){
   return(fileTracker)
 }
 
-print("computing stats...")
-fileTracker <- getStats()
-save(fileTracker, file=sprintf("%s/fileTracker.Rdata", reportPath))
-#load(file=sprintf("%s/fileTracker.Rdata", reportPath)) #fileTracker
+#print("computing stats...")
+#fileTracker <- getStats()
+#save(fileTracker, file=sprintf("%s/fileTracker.Rdata", reportPath))
+load(file=sprintf("%s/fileTracker.Rdata", reportPath)) #fileTracker
 
 createPmsPages <- function(){
   pmsDf <- (fileTracker |> select(SEBI_ID, PMS_NAME, ID) |> distinct())

@@ -65,8 +65,9 @@ for(i in 1:nrow(funds)){
   asof <- funds$AS_OF[i]
   startDt <- funds$ST_DT[i]
   
-  cat("##", stratName, "\n")
+  cat("##", stratName, "\n\n")
   
+  cat("### Performance \n")
   cat("Asset Class: ", asset, '; ')
   cat("AUM: Rs.", round(aum, 2), 'cr; ')
   cat("Sharpe Ratio:", round(sharpe, 2), '; ')
@@ -78,6 +79,7 @@ for(i in 1:nrow(funds)){
     cat("![](", sprintf("%s/plots/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFile), ")")
   }
   
+  cat("\n\n### Assets Under Management \n")
   cat("![](", sprintf("%s/plots/pms-%d.%s.aum.png", reportPath, metaId, stratFile), ")")
   cat("*from", startDt, " through ", asof, ".*")
   cat('\\')
