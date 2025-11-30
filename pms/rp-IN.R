@@ -188,6 +188,7 @@ getStats <- function(){
       select(name))$name
                                                                                                
     strategyRets <- strategyRets |> select(-all_of(names2Remove))
+    strategyAum <- strategyAum |> select(-all_of(names2Remove))
     
     if(nrow(strategyRets) == 0 || ncol(strategyRets) < 2) next
     
@@ -199,7 +200,7 @@ getStats <- function(){
       aum <- (strategyAumAvg |> filter(name == stratTname) |> select(aum))[[1]]
       if(aum == 0) next
       
-      stratFname <- str_replace_all(stratTname, '[ .()]', '_')
+      stratFname <- str_replace_all(stratTname, '[ .()/&]', '_')
   
       sebiClass <- ""
       tryCatch({
@@ -249,6 +250,35 @@ getStats <- function(){
         Common.PlotCumReturns(retXts, sprintf("%s Returns", stratTname), sprintf("SR: %s", sr), #NULL)
                             sprintf("%s/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFname))
       }
+      
+      barColor <- viridis(n=2)[1]
+      aumTp <- strategyAum |> select(dt, all_of(stratTname)) |>
+        drop_na() |>
+        mutate(aum_chg = round(100*(.data[[stratTname]]/lag(.data[[stratTname]]) -1), 2)) |>
+        select(dt, all_of(stratTname), aum_chg) |>
+        rename_with(~"strategy", 2)
+      
+      p1 <- ggplot(aumTp, aes(y = strategy, x=dt)) +
+        theme_economist() +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        geom_line(color = barColor, linewidth=1.1) +
+        scale_x_date(date_breaks = "3 month", date_label = "%Y-%b") +
+        labs(x = '', y = 'AUM Rs. (cr)', title = "Assets Under Management")
+      
+      p2 <- ggplot(aumTp, aes(y = aum_chg, x = dt)) +
+        theme_economist() +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        geom_bar(stat='identity', fill=barColor) +
+        scale_x_date(date_breaks = "3 month", date_label = "%Y-%b") +
+        labs(x = '', y = 'AUM Growth (%)', title = "Growth in AUM")
+      
+      p1/p2 + plot_layout(axes = 'collect_x') +
+        plot_annotation(title = stratTname,
+                        subtitle = sprintf("%s:%s", minDt, maxDt),
+                        caption = '@StockViz',
+                        theme = theme_economist())
+      
+      ggsave(sprintf("%s/pms-%d.%s.aum.png", reportPath, metaId, stratFname), width = 12, height = 12, units = "in")
       
       fileTracker <- rbind(fileTracker, c(metaId, sebiId, pmsName, stratFname, str_to_title(stratTname), sebiClass, aum, fundSr, fundIr, ret, as.character(minDt), as.character(maxDt)))
     }

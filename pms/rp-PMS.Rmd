@@ -77,6 +77,8 @@ for(i in 1:nrow(funds)){
   if(!is.na(asset) && asset == 'EQUITY'){
     cat("![](", sprintf("%s/plots/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFile), ")")
   }
+  
+  cat("![](", sprintf("%s/plots/pms-%d.%s.aum.png", reportPath, metaId, stratFile), ")")
   cat("*from", startDt, " through ", asof, ".*")
   cat('\\')
   cat("\n\n")
