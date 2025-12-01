@@ -12,6 +12,8 @@ output:
     highlight: tango
     self_contained: false
     lib_dir: analysis/rmdlib		
+    toc: true
+    toc_depth: 2
     includes:
         in_header: header.html
         after_body: ../footer.html
@@ -88,24 +90,28 @@ for(i in 1:nrow(funds)){
 cat('\\')
 cat("\n\n")
 
-fname <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
-if(file.exists(fname)){
-  cat("### Historical (pre-2021) Performance")
-  cat("\n\n")
-  cat("![](", fname, ")")
+fname1 <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
+fname2 <- sprintf("%s/plots/pms-%d.factor.cum.pre.png", reportPath, metaId)
+fname3 <- sprintf("%s/plots/pms-%d.aum.pre.png", reportPath, metaId)
+
+if(file.exists(fname1) || file.exists(fname2) || file.exists(fname3)){
+  cat("## Historical (pre-2021)\n\n")
+}
+
+if(file.exists(fname1)){
+  cat("### Performance\n\n")
+  cat("![](", fname1, ")")
   cat("\n\n")
 }
 
-fname <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
-if(file.exists(fname)){
-  cat("![](", fname, ")")
+if(file.exists(fname2)){
+  cat("![](", fname2, ")")
   cat("\n\n")
 }
 
-fname <- sprintf("%s/plots/pms-%d.aum.pre.png", reportPath, metaId)
-if(file.exists(fname)){
-  cat("\n\n### Historical (pre-2021) AUM")
-  cat("![](", fname, ")")
+if(file.exists(fname3)){
+  cat("\n\n### Assets Under Management\n\n")
+  cat("![](", fname3, ")")
   cat("\n\n")
 }
 

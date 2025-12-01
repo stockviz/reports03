@@ -237,14 +237,7 @@ getStats <- function(){
     
     if(nrow(strategyRets) == 0 || ncol(strategyRets) < 2) next
     
-    #if there's only one fund, fuse it with the historical wavg returns
-    if (ncol(strategyRets) == 2 && nrow(fundRets) > 0 && nrow(fundAum) > 0){
-      colnames(fundRets)[2] <- colnames(strategyRets)[2]
-      strategyRets <- rbind(fundRets, strategyRets) |> arrange(dt)
-
-      colnames(fundAum)[2] <- colnames(strategyAum)[2]
-      strategyAum <- rbind(fundAum, strategyAum) |> arrange(dt)
-    } else if (nrow(fundRets) > 0 && nrow(fundAum) > 0) {
+    if (nrow(fundRets) > 0 && nrow(fundAum) > 0) {
       srXts <- xts(fundRets$ret, fundRets$dt)
       srXts <- srXts[srXts < 5]
       maxDt <- max(index(srXts))
@@ -296,13 +289,13 @@ getStats <- function(){
                         theme = theme_economist())
       
       ggsave(sprintf("%s/pms-%d.aum.pre.png", reportPath, metaId), width = 12, height = 12, units = "in")
-
     }
     
     for(j in 2:ncol(strategyRets)){
-      if(nrow(na.omit(strategyRets[,j])) < 12 || all(strategyRets[,j] == 0, na.rm=TRUE)) next
-      
       stratTname <- colnames(strategyRets)[j]
+      
+      if(nrow(strategyRets |> select(all_of(stratTname)) |> drop_na()) < 12 
+         || all(strategyRets[,j] == 0, na.rm=TRUE)) next
       
       aum <- (strategyAumAvg |> filter(name == stratTname) |> select(aum))[[1]]
       if(aum == 0) next
