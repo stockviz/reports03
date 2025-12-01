@@ -85,4 +85,28 @@ for(i in 1:nrow(funds)){
   cat('\\')
   cat("\n\n")
 }
+cat('\\')
+cat("\n\n")
+
+fname <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
+if(file.exists(fname)){
+  cat("### Historical (pre-2021) Performance")
+  cat("\n\n")
+  cat("![](", fname, ")")
+  cat("\n\n")
+}
+
+fname <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
+if(file.exists(fname)){
+  cat("![](", fname, ")")
+  cat("\n\n")
+}
+
+fname <- sprintf("%s/plots/pms-%d.aum.pre.png", reportPath, metaId)
+if(file.exists(fname)){
+  cat("\n\n### Historical (pre-2021) AUM")
+  cat("![](", fname, ")")
+  cat("\n\n")
+}
+
 ```

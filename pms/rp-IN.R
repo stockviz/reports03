@@ -20,7 +20,7 @@ source("/mnt/hollandr/plot.common.r")
 lcon <- odbcDriverConnect(sprintf("Driver={ODBC Driver 17 for SQL Server};Server=%s;Database=%s;Uid=%s;Pwd=%s;", ldbserver, ldbname, ldbuser, ldbpassword), case = "nochange", believeNRows = TRUE)
 pgCon <- dbConnect(RPostgres::Postgres(), host = 'sweden', user = ldbuser2, password = ldbpassword2, dbname = 'StockVizDyn', sslmode = 'allow')
 
-startDate <- as.Date("2021-01-01")
+startDate <- as.Date("2015-01-01")
 getMonthlyIndexRets <- function(iNames){
   rets <- NULL
   for(i in 1:length(iNames)){
@@ -85,6 +85,7 @@ getStats <- function(){
   
   for(i in 1:nrow(activePms)){
     metaId <- activePms$id[i]
+    print(paste("processing:", metaId))
     metaDf <- dbGetQuery(pgCon, "select sebi_id, pms_name from sebi_pms_meta where id = $1", params=list(metaId))
     sebiId <- metaDf$sebi_id[1]
     pmsName <- metaDf$pms_name[1]
@@ -93,6 +94,7 @@ getStats <- function(){
                                     from sebi_pms_data spd, 
                                       jsonb_array_elements(val->'discretionaryServices'->'performanceData') as ln 
                                     where id = $1
+                                    and yr >= 2022
                                     order by yr, mth",
                                   params = list(metaId))
     
@@ -101,8 +103,29 @@ getStats <- function(){
     strategyReturnsDf2 <- dbGetQuery(pgCon, "select yr, mth, val->'discretionaryServices'->'performanceData' pd 
                                     from sebi_pms_data spd 
                                     where id = $1
+                                    and yr >= 2022
                                     order by yr, mth",
                                   params = list(metaId))
+    
+    strategyReturnsDf3 <- dbGetQuery(pgCon, "select yr, mth, ln->>'strategy' name, ln->>'ret1m' ret_pct, ln->>'aum' auminrcr 
+                                    from sebi_pms_data spd, 
+                                    jsonb_array_elements(val) as ln
+                                    where id = $1
+                                    and yr = 2021  
+                                    order by yr, mth",
+                                     params = list(metaId))
+    
+    strategyReturnsDf3 <- strategyReturnsDf3 |> filter(!if_all(c(name, ret_pct, auminrcr), is.na))
+    
+    fundReturnsDf <- dbGetQuery(pgCon, "select yr, mth, val->>'wavg_ret' ret_pct, val->>'aum' auminrcr 
+                                    from sebi_pms_data spd 
+                                    where id = $1
+                                    and yr <= 2020  
+                                    order by yr, mth",
+                                     params = list(metaId))
+    
+    fundReturnsDf$ret_pct <- as.numeric(fundReturnsDf$ret_pct)
+    fundReturnsDf$auminrcr <- as.numeric(fundReturnsDf$auminrcr)
     
     stratRetTb <- tibble()
     for(j in 1:nrow(strategyReturnsDf2)){
@@ -150,12 +173,34 @@ getStats <- function(){
       stratRetTb <- stratRetTb1
     }
     
+    if(nrow(strategyReturnsDf3) > 0){
+      strategyReturnsDf3$strategy <- NA
+      stratRetTb <- rbind(strategyReturnsDf3, stratRetTb)
+    }
+    
     stratNameAlias <- dbGetQuery(pgCon, "select strategy_alias from sebi_pms_aux where id = $1", params = list(metaId))
     if(nrow(stratNameAlias) > 0){
       aliases <- jsonlite::fromJSON(stratNameAlias$strategy_alias[1])
-      for(ai in seq_along(aliases)){
+      for(ai in 1:nrow(aliases)){
         stratRetTb <- stratRetTb |> mutate(name = str_replace(name, regex(paste(aliases$alias[[ai]], collapse="|"), ignore_case = TRUE), aliases$primary[[ai]]))
       }
+    }
+    
+    fundRets <- tibble()
+    fundAum <- tibble()
+    if(nrow(fundReturnsDf) > 0){
+      fundRets <- fundReturnsDf |> mutate(ret = as.numeric(ret_pct)/100, 
+                                           dt = as.Date(sprintf("%d-%d-%d", yr, mth,
+                                                                days_in_month(as.Date(sprintf("%d-%d-1", yr, mth)))))) |> 
+        distinct(dt, .keep_all = TRUE) |> 
+        select(dt, ret)
+      
+      
+      fundAum <- fundReturnsDf |> mutate(aum = as.numeric(auminrcr), 
+                                          dt = as.Date(sprintf("%d-%d-%d", yr, mth,
+                                                               days_in_month(as.Date(sprintf("%d-%d-1", yr, mth)))))) |> 
+        distinct(dt, .keep_all = TRUE) |> 
+        select(dt, aum)
     }
     
     strategyRets <- stratRetTb |> mutate(ret = as.numeric(ret_pct)/100, 
@@ -191,6 +236,68 @@ getStats <- function(){
     strategyAum <- strategyAum |> select(-all_of(names2Remove))
     
     if(nrow(strategyRets) == 0 || ncol(strategyRets) < 2) next
+    
+    #if there's only one fund, fuse it with the historical wavg returns
+    if (ncol(strategyRets) == 2 && nrow(fundRets) > 0 && nrow(fundAum) > 0){
+      colnames(fundRets)[2] <- colnames(strategyRets)[2]
+      strategyRets <- rbind(fundRets, strategyRets) |> arrange(dt)
+
+      colnames(fundAum)[2] <- colnames(strategyAum)[2]
+      strategyAum <- rbind(fundAum, strategyAum) |> arrange(dt)
+    } else if (nrow(fundRets) > 0 && nrow(fundAum) > 0) {
+      srXts <- xts(fundRets$ret, fundRets$dt)
+      srXts <- srXts[srXts < 5]
+      maxDt <- max(index(srXts))
+      minDt <- min(index(srXts))
+      names(srXts)[1] <- "PMS"
+      retXts <- merge(srXts, monthlyMktBenchRets)
+      retXts <- na.omit(retXts)
+      ret <- as.numeric(Return.annualized(srXts)) * 100
+      fundSr <- as.numeric(SharpeRatio.annualized(srXts, rfBenchRets))
+      fundIr <- as.numeric(InformationRatio(retXts[,1], retXts[,2]))*100
+      
+      sr <- paste(round(SharpeRatio.annualized(retXts, rfBenchRets), 2), collapse="/")
+      Common.PlotCumReturns(retXts, "PMS Returns (wavg)", sprintf("SR: %s", sr), #NULL)
+                            sprintf("%s/pms-%d.cum.pre.png", reportPath, metaId))
+      
+      retXts <- merge(srXts, monthlyFactorBenchRets)
+      retXts <- na.omit(retXts)
+      
+      sr <- paste(round(SharpeRatio.annualized(retXts, rfBenchRets), 2), collapse="/")
+      Common.PlotCumReturns(retXts, "PMS Returns", sprintf("SR: %s", sr), #NULL)
+                            sprintf("%s/pms-%d.factor.cum.pre.png", reportPath, metaId))
+      
+      barColor <- viridis(n=2)[1]
+
+      aumTp <- fundAum |> 
+        drop_na() |>
+        filter(aum > 0) |>
+        mutate(aum_chg = round(100*(aum/lag(aum) -1), 2)) |>
+        select(dt, aum, aum_chg) 
+      
+      p1 <- ggplot(aumTp, aes(y = aum, x=dt)) +
+        theme_economist() +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        geom_line(color = barColor, linewidth=1.1) +
+        scale_x_date(date_breaks = "3 month", date_label = "%Y-%b") +
+        labs(x = '', y = 'AUM Rs. (cr)', title = "Assets Under Management")
+      
+      p2 <- ggplot(aumTp, aes(y = aum_chg, x = dt)) +
+        theme_economist() +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        geom_bar(stat='identity', fill=barColor) +
+        scale_x_date(date_breaks = "3 month", date_label = "%Y-%b") +
+        labs(x = '', y = 'AUM Growth (%)', title = "Growth in AUM")
+      
+      p1/p2 + plot_layout(axes = 'collect_x') +
+        plot_annotation(title = "PMS AUM",
+                        subtitle = sprintf("%s:%s", minDt, maxDt),
+                        caption = '@StockViz',
+                        theme = theme_economist())
+      
+      ggsave(sprintf("%s/pms-%d.aum.pre.png", reportPath, metaId), width = 12, height = 12, units = "in")
+
+    }
     
     for(j in 2:ncol(strategyRets)){
       if(nrow(na.omit(strategyRets[,j])) < 12 || all(strategyRets[,j] == 0, na.rm=TRUE)) next
