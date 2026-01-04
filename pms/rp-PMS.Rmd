@@ -1,0 +1,118 @@
+---
+params:
+  metaId: 0
+  pmsTitle: ""
+title: "`r params$pmsTitle`"
+subtitle: StockViz
+editor_options:
+  chunk_output_type: console
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    self_contained: false
+    lib_dir: analysis/rmdlib		
+    toc: true
+    toc_depth: 2
+    includes:
+        in_header: header.html
+        after_body: ../footer.html
+---
+  
+```{r dt_chunk, include=FALSE}
+
+createdDate <- gsub(" 0", " ",format(Sys.Date(), "%B %d, %Y"))
+
+```
+
+---
+date: `r createdDate`
+---
+  
+*Source: [SEBI Portfolio Manager Monthly Report ](https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doPmr=yes) *
+  
+```{r, calc_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+library('RODBC')
+library('RPostgres')
+library('quantmod')
+library('tidyverse')
+
+library('xtable')
+library('knitr')
+library('kableExtra')
+library('DT')
+
+options(stringsAsFactors = FALSE)
+options("scipen"=100)
+
+#source("C:/stockviz/r/config.r")
+source("/mnt/hollandr/config.r")
+reportPath <- "analysis"
+metaId <- as.numeric(params$metaId)
+#metaId <- 127
+load(file=sprintf("%s/plots/fileTracker.Rdata", reportPath)) #fileTracker
+
+funds <- fileTracker |> filter(as.numeric(ID) == metaId) |> arrange(desc(as.numeric(AUM)))
+```
+
+```{r, results="asis", echo = FALSE, message = FALSE, warning = FALSE}
+for(i in 1:nrow(funds)){
+  stratFile <- funds$STRAT_FILE[i]
+  stratName <- funds$STRAT_TITLE[i]
+  asset <- funds$ASSET_CLASS[i]
+  
+  aum <- as.numeric(funds$AUM[i])
+  sharpe <- as.numeric(funds$SHARPE[i])
+  ir <- as.numeric(funds$IR[i])
+  asof <- funds$AS_OF[i]
+  startDt <- funds$ST_DT[i]
+  
+  cat("##", stratName, "\n\n")
+  
+  cat("### Performance \n")
+  cat("Asset Class: ", asset, '; ')
+  cat("AUM: Rs.", round(aum, 2), 'cr; ')
+  cat("Sharpe Ratio:", round(sharpe, 2), '; ')
+  cat("Information Ratio:", round(ir, 2))
+  cat("\n\n")
+  cat("![](", sprintf("%s/plots/pms-%d.%s.cum.png", reportPath, metaId, stratFile), ")")
+  
+  if(!is.na(asset) && asset == 'EQUITY'){
+    cat("![](", sprintf("%s/plots/pms-%d.%s.factor.cum.png", reportPath, metaId, stratFile), ")")
+  }
+  
+  cat("\n\n### Assets Under Management \n")
+  cat("![](", sprintf("%s/plots/pms-%d.%s.aum.png", reportPath, metaId, stratFile), ")")
+  cat("*from", startDt, " through ", asof, ".*")
+  cat('\\')
+  cat("\n\n")
+}
+cat('\\')
+cat("\n\n")
+
+fname1 <- sprintf("%s/plots/pms-%d.cum.pre.png", reportPath, metaId)
+fname2 <- sprintf("%s/plots/pms-%d.factor.cum.pre.png", reportPath, metaId)
+fname3 <- sprintf("%s/plots/pms-%d.aum.pre.png", reportPath, metaId)
+
+if(file.exists(fname1) || file.exists(fname2) || file.exists(fname3)){
+  cat("## Historical (pre-2021)\n\n")
+}
+
+if(file.exists(fname1)){
+  cat("### Performance\n\n")
+  cat("![](", fname1, ")")
+  cat("\n\n")
+}
+
+if(file.exists(fname2)){
+  cat("![](", fname2, ")")
+  cat("\n\n")
+}
+
+if(file.exists(fname3)){
+  cat("\n\n### Assets Under Management\n\n")
+  cat("![](", fname3, ")")
+  cat("\n\n")
+}
+
+```
