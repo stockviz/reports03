@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2026-03-01" />
+
+<title>BIRLA SUN LIFE ASSET MANAGEMENT COMPANY LIMITED</title>
+
+<script src="rmdlib/header-attrs-2.30/header-attrs.js"></script>
+<script src="rmdlib/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="rmdlib/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="rmdlib/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="rmdlib/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="rmdlib/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="rmdlib/navigation-1.1/tabsets.js"></script>
+<script src="rmdlib/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="rmdlib/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="rmdlib/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
+<meta name="description" content="PMS - Portfolio Management Service - analysis. Sharpe, AUM, etc..." />
+<meta property="og:image" content="https://avatars3.githubusercontent.com/u/21966469?s=400&v=4" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">StockViz</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-globe"></span>
+     
+    Macro
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-bnd.html">Fixed Income</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cur.html">Currencies</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cmdy.html">Commodities</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-arrows-v"></span>
+     
+    52w H&amp;L
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-rocket"></span>
+     
+    ATH
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-magnet"></span>
+     
+    Drawdowns
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-train"></span>
+     
+    Streaks
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-hand-pointer-o"></span>
+     
+    Indian Indices
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-risk.html">Performance Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-IN.html">Index Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-MKT-CAP.html">Classification Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-industry.html">Industry Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-syn.html">Synthetic Indices</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-vol-NIFTY.html">NIFTY Volatility</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-valuations.html">Valuations</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/results-IN.html">Result Dates</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/eq-in/rp-margin.html">Margin Report</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-shopping-bag"></span>
+     
+    Funds
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports03/mf/rp-IN.html">Indian Mutual Funds</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports03/pms/rp-IN.html">Indian PMS</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-risk.html">US ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-sector.html">US Sector ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-country.html">Country $ ETFs</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-percent"></span>
+     
+    Fama-French
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-industry.html">Industry</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-factors.html">Factors</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-regression.html">Regressions</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://stockviz.biz">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://stockviz.substack.com">
+    <span class="fa fa-envelope-o"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">BIRLA SUN LIFE ASSET MANAGEMENT COMPANY LIMITED</h1>
+<h3 class="subtitle">StockViz</h3>
+<h4 class="date">March 1, 2026</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#pms-for-pfs-and-special-mandates">Pms For Pfs And Special Mandates</a></li>
+<li><a href="#india-special-opportunities-portfolio-stp">India Special Opportunities Portfolio Stp</a></li>
+<li><a href="#select-sector-portfolio">Select Sector Portfolio</a></li>
+<li><a href="#india-special-opportunities-portfolio">India Special Opportunities Portfolio</a></li>
+<li><a href="#india-special-opportunities-portfolio-nr">India Special Opportunities Portfolio Nr</a></li>
+<li><a href="#core-equity-portfolio">Core Equity Portfolio</a></li>
+<li><a href="#customised-debt-portfolio">Customised Debt Portfolio</a></li>
+<li><a href="#innovation-portfolio">Innovation Portfolio</a></li>
+<li><a href="#customised-equity-portfolio">Customised Equity Portfolio</a></li>
+<li><a href="#absl-customised-real-estate-portfolio">Absl Customised Real Estate Portfolio</a></li>
+<li><a href="#select-sector-portfolio-nr">Select Sector Portfolio Nr</a></li>
+<li><a href="#top-200-core-equity-portfolio">Top 200 Core Equity Portfolio</a></li>
+<li><a href="#absl-india-200-quant-equity-portfolio">Absl India 200 Quant Equity Portfolio</a></li>
+<li><a href="#top-200-core-equity-portfolio-stp">Top 200 Core Equity Portfolio Stp</a></li>
+<li><a href="#liquid-portfolio">Liquid Portfolio</a></li>
+<li><a href="#absl-next-100-portfolio-stp">Absl Next 100 Portfolio Stp</a></li>
+<li><a href="#innovation-portfolio-nr">Innovation Portfolio Nr</a></li>
+<li><a href="#adapt-portfolio---very-agressive">Adapt Portfolio - Very Agressive</a></li>
+<li><a href="#top-200-core-equity-portfolio-nr">Top 200 Core Equity Portfolio Nr</a></li>
+<li><a href="#select-sector-portfolio-stp">Select Sector Portfolio Stp</a></li>
+<li><a href="#core-equity-portfolio-nr">Core Equity Portfolio Nr</a></li>
+<li><a href="#innovation-portfolio-stp">Innovation Portfolio Stp</a></li>
+<li><a href="#absl-next-100-portfolio">Absl Next 100 Portfolio</a></li>
+<li><a href="#core-equity-portfolio-stp">Core Equity Portfolio Stp</a></li>
+<li><a href="#absl-india-equity-services">Absl India Equity Services</a></li>
+<li><a href="#absl-india-equity-services-stp">Absl India Equity Services Stp</a></li>
+<li><a href="#india-large-cap-quant-equity-portfolio">India Large Cap Quant Equity Portfolio</a></li>
+<li><a href="#adapt-moderate-portfolio">Adapt Moderate Portfolio</a></li>
+<li><a href="#adapt-very-conservative-portfolio">Adapt Very Conservative Portfolio</a></li>
+<li><a href="#historical-pre-2021">Historical (pre-2021)</a></li>
+</ul>
+</div>
+
+<p><em>Source: <a href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doPmr=yes">SEBI Portfolio Manager Monthly Report</a> </em></p>
+<div id="pms-for-pfs-and-special-mandates" class="section level2">
+<h2>Pms For Pfs And Special Mandates</h2>
+<div id="performance" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 27698.56 cr; Sharpe Ratio: 0.5 ; Information Ratio: 77.6</p>
+<p><img src="plots/pms-93.PMS_for_PFs__and__Special_Mandates.cum.png" /></p>
+</div>
+<div id="assets-under-management" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.PMS_for_PFs__and__Special_Mandates.aum.png" /><em>from 2025-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="india-special-opportunities-portfolio-stp" class="section level2">
+<h2>India Special Opportunities Portfolio Stp</h2>
+<div id="performance-1" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 595.72 cr; Sharpe Ratio: 0.72 ; Information Ratio: 7.11</p>
+<p><img src="plots/pms-93.INDIA_SPECIAL_OPPORTUNITIES_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.INDIA_SPECIAL_OPPORTUNITIES_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-1" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.INDIA_SPECIAL_OPPORTUNITIES_PORTFOLIO_STP.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="select-sector-portfolio" class="section level2">
+<h2>Select Sector Portfolio</h2>
+<div id="performance-2" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 469.83 cr; Sharpe Ratio: 1.14 ; Information Ratio: 93.63</p>
+<p><img src="plots/pms-93.Select_Sector_Portfolio.cum.png" /><img src="plots/pms-93.Select_Sector_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-2" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Select_Sector_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="india-special-opportunities-portfolio" class="section level2">
+<h2>India Special Opportunities Portfolio</h2>
+<div id="performance-3" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 452.74 cr; Sharpe Ratio: 0.43 ; Information Ratio: 14.85</p>
+<p><img src="plots/pms-93.India_Special_Opportunities_Portfolio.cum.png" /><img src="plots/pms-93.India_Special_Opportunities_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-3" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.India_Special_Opportunities_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="india-special-opportunities-portfolio-nr" class="section level2">
+<h2>India Special Opportunities Portfolio Nr</h2>
+<div id="performance-4" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 261.37 cr; Sharpe Ratio: 0.49 ; Information Ratio: 10.01</p>
+<p><img src="plots/pms-93.India_Special_Opportunities_Portfolio_NR.cum.png" /><img src="plots/pms-93.India_Special_Opportunities_Portfolio_NR.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-4" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.India_Special_Opportunities_Portfolio_NR.aum.png" /><em>from 2021-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="core-equity-portfolio" class="section level2">
+<h2>Core Equity Portfolio</h2>
+<div id="performance-5" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 193.96 cr; Sharpe Ratio: 0.5 ; Information Ratio: -8.15</p>
+<p><img src="plots/pms-93.Core_Equity_Portfolio.cum.png" /><img src="plots/pms-93.Core_Equity_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-5" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Core_Equity_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="customised-debt-portfolio" class="section level2">
+<h2>Customised Debt Portfolio</h2>
+<div id="performance-6" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 133.31 cr; Sharpe Ratio: 1.76 ; Information Ratio: 169.89</p>
+<p><img src="plots/pms-93.Customised_Debt_Portfolio.cum.png" /></p>
+</div>
+<div id="assets-under-management-6" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Customised_Debt_Portfolio.aum.png" /><em>from 2024-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="innovation-portfolio" class="section level2">
+<h2>Innovation Portfolio</h2>
+<div id="performance-7" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 112.05 cr; Sharpe Ratio: 0.55 ; Information Ratio: 6.16</p>
+<p><img src="plots/pms-93.Innovation_Portfolio.cum.png" /><img src="plots/pms-93.Innovation_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-7" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Innovation_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="customised-equity-portfolio" class="section level2">
+<h2>Customised Equity Portfolio</h2>
+<div id="performance-8" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 90.19 cr; Sharpe Ratio: -0.33 ; Information Ratio: -67.4</p>
+<p><img src="plots/pms-93.Customised_Equity_Portfolio.cum.png" /><img src="plots/pms-93.Customised_Equity_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-8" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Customised_Equity_Portfolio.aum.png" /><em>from 2024-11-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-customised-real-estate-portfolio" class="section level2">
+<h2>Absl Customised Real Estate Portfolio</h2>
+<div id="performance-9" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 85.86 cr; Sharpe Ratio: 4.2 ; Information Ratio: 326.78</p>
+<p><img src="plots/pms-93.ABSL_Customised_Real_Estate_Portfolio.cum.png" /></p>
+</div>
+<div id="assets-under-management-9" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_Customised_Real_Estate_Portfolio.aum.png" /><em>from 2024-03-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="select-sector-portfolio-nr" class="section level2">
+<h2>Select Sector Portfolio Nr</h2>
+<div id="performance-10" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 66.79 cr; Sharpe Ratio: 0.6 ; Information Ratio: 30.88</p>
+<p><img src="plots/pms-93.Select_Sector_Portfolio_NR.cum.png" /><img src="plots/pms-93.Select_Sector_Portfolio_NR.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-10" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Select_Sector_Portfolio_NR.aum.png" /><em>from 2021-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="top-200-core-equity-portfolio" class="section level2">
+<h2>Top 200 Core Equity Portfolio</h2>
+<div id="performance-11" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 43.07 cr; Sharpe Ratio: 0.51 ; Information Ratio: -6.31</p>
+<p><img src="plots/pms-93.Top_200_Core_Equity_Portfolio.cum.png" /><img src="plots/pms-93.Top_200_Core_Equity_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-11" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Top_200_Core_Equity_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-india-200-quant-equity-portfolio" class="section level2">
+<h2>Absl India 200 Quant Equity Portfolio</h2>
+<div id="performance-12" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 33.77 cr; Sharpe Ratio: -0.38 ; Information Ratio: -46.49</p>
+<p><img src="plots/pms-93.ABSL_India_200_QUANT_EQUITY_PORTFOLIO.cum.png" /><img src="plots/pms-93.ABSL_India_200_QUANT_EQUITY_PORTFOLIO.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-12" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_India_200_QUANT_EQUITY_PORTFOLIO.aum.png" /><em>from 2024-11-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="top-200-core-equity-portfolio-stp" class="section level2">
+<h2>Top 200 Core Equity Portfolio Stp</h2>
+<div id="performance-13" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 32.53 cr; Sharpe Ratio: 0.58 ; Information Ratio: -46.16</p>
+<p><img src="plots/pms-93.TOP_200_CORE_EQUITY_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.TOP_200_CORE_EQUITY_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-13" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.TOP_200_CORE_EQUITY_PORTFOLIO_STP.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="liquid-portfolio" class="section level2">
+<h2>Liquid Portfolio</h2>
+<div id="performance-14" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 28.78 cr; Sharpe Ratio: -2.63 ; Information Ratio: -126.2</p>
+<p><img src="plots/pms-93.Liquid_Portfolio.cum.png" /></p>
+</div>
+<div id="assets-under-management-14" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Liquid_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-next-100-portfolio-stp" class="section level2">
+<h2>Absl Next 100 Portfolio Stp</h2>
+<div id="performance-15" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 27.65 cr; Sharpe Ratio: -0.43 ; Information Ratio: -49.12</p>
+<p><img src="plots/pms-93.ABSL_NEXT_100_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.ABSL_NEXT_100_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-15" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_NEXT_100_PORTFOLIO_STP.aum.png" /><em>from 2024-11-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="innovation-portfolio-nr" class="section level2">
+<h2>Innovation Portfolio Nr</h2>
+<div id="performance-16" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 25.2 cr; Sharpe Ratio: 0.37 ; Information Ratio: -14.42</p>
+<p><img src="plots/pms-93.Innovation_Portfolio_NR.cum.png" /><img src="plots/pms-93.Innovation_Portfolio_NR.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-16" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Innovation_Portfolio_NR.aum.png" /><em>from 2021-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="adapt-portfolio---very-agressive" class="section level2">
+<h2>Adapt Portfolio - Very Agressive</h2>
+<div id="performance-17" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 22.08 cr; Sharpe Ratio: 0.74 ; Information Ratio: 59.49</p>
+<p><img src="plots/pms-93.ADAPT_PORTFOLIO_-_Very_Agressive.cum.png" /><img src="plots/pms-93.ADAPT_PORTFOLIO_-_Very_Agressive.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-17" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ADAPT_PORTFOLIO_-_Very_Agressive.aum.png" /><em>from 2023-12-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="top-200-core-equity-portfolio-nr" class="section level2">
+<h2>Top 200 Core Equity Portfolio Nr</h2>
+<div id="performance-18" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 20.8 cr; Sharpe Ratio: 0.45 ; Information Ratio: -3.46</p>
+<p><img src="plots/pms-93.Top_200_Core_Equity_Portfolio_NR.cum.png" /><img src="plots/pms-93.Top_200_Core_Equity_Portfolio_NR.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-18" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Top_200_Core_Equity_Portfolio_NR.aum.png" /><em>from 2021-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="select-sector-portfolio-stp" class="section level2">
+<h2>Select Sector Portfolio Stp</h2>
+<div id="performance-19" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 20.8 cr; Sharpe Ratio: 1.29 ; Information Ratio: 99.8</p>
+<p><img src="plots/pms-93.SELECT_SECTOR_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.SELECT_SECTOR_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-19" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.SELECT_SECTOR_PORTFOLIO_STP.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="core-equity-portfolio-nr" class="section level2">
+<h2>Core Equity Portfolio Nr</h2>
+<div id="performance-20" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 13.67 cr; Sharpe Ratio: 0.35 ; Information Ratio: -29.08</p>
+<p><img src="plots/pms-93.Core_Equity_Portfolio_NR.cum.png" /><img src="plots/pms-93.Core_Equity_Portfolio_NR.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-20" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.Core_Equity_Portfolio_NR.aum.png" /><em>from 2021-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="innovation-portfolio-stp" class="section level2">
+<h2>Innovation Portfolio Stp</h2>
+<div id="performance-21" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 9.43 cr; Sharpe Ratio: 0.53 ; Information Ratio: -39.36</p>
+<p><img src="plots/pms-93.INNOVATION_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.INNOVATION_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-21" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.INNOVATION_PORTFOLIO_STP.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-next-100-portfolio" class="section level2">
+<h2>Absl Next 100 Portfolio</h2>
+<div id="performance-22" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 8.17 cr; Sharpe Ratio: -0.45 ; Information Ratio: -52.6</p>
+<p><img src="plots/pms-93.ABSL_Next_100_Portfolio.cum.png" /><img src="plots/pms-93.ABSL_Next_100_Portfolio.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-22" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_Next_100_Portfolio.aum.png" /><em>from 2024-11-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="core-equity-portfolio-stp" class="section level2">
+<h2>Core Equity Portfolio Stp</h2>
+<div id="performance-23" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 6.91 cr; Sharpe Ratio: 0.56 ; Information Ratio: -67.67</p>
+<p><img src="plots/pms-93.CORE_EQUITY_PORTFOLIO_STP.cum.png" /><img src="plots/pms-93.CORE_EQUITY_PORTFOLIO_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-23" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.CORE_EQUITY_PORTFOLIO_STP.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-india-equity-services" class="section level2">
+<h2>Absl India Equity Services</h2>
+<div id="performance-24" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 1.87 cr; Sharpe Ratio: 0.08 ; Information Ratio: -58.58</p>
+<p><img src="plots/pms-93.ABSL_India_Equity_Services.cum.png" /><img src="plots/pms-93.ABSL_India_Equity_Services.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-24" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_India_Equity_Services.aum.png" /><em>from 2023-10-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="absl-india-equity-services-stp" class="section level2">
+<h2>Absl India Equity Services Stp</h2>
+<div id="performance-25" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 1.77 cr; Sharpe Ratio: -0.54 ; Information Ratio: -133.45</p>
+<p><img src="plots/pms-93.ABSL_India_Equity_Services_STP.cum.png" /><img src="plots/pms-93.ABSL_India_Equity_Services_STP.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-25" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ABSL_India_Equity_Services_STP.aum.png" /><em>from 2024-01-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="india-large-cap-quant-equity-portfolio" class="section level2">
+<h2>India Large Cap Quant Equity Portfolio</h2>
+<div id="performance-26" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 0.35 cr; Sharpe Ratio: 0.12 ; Information Ratio: -127.05</p>
+<p><img src="plots/pms-93.INDIA_LARGE_CAP_QUANT_EQUITY_PORTFOLIO.cum.png" /><img src="plots/pms-93.INDIA_LARGE_CAP_QUANT_EQUITY_PORTFOLIO.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-26" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.INDIA_LARGE_CAP_QUANT_EQUITY_PORTFOLIO.aum.png" /><em>from 2023-12-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="adapt-moderate-portfolio" class="section level2">
+<h2>Adapt Moderate Portfolio</h2>
+<div id="performance-27" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 0.32 cr; Sharpe Ratio: 0.49 ; Information Ratio: 57.68</p>
+<p><img src="plots/pms-93.ADAPT_Moderate_Portfolio.cum.png" /></p>
+</div>
+<div id="assets-under-management-27" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ADAPT_Moderate_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="adapt-very-conservative-portfolio" class="section level2">
+<h2>Adapt Very Conservative Portfolio</h2>
+<div id="performance-28" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 0.24 cr; Sharpe Ratio: 0.12 ; Information Ratio: 12.11</p>
+<p><img src="plots/pms-93.ADAPT_Very_Conservative_Portfolio.cum.png" /></p>
+</div>
+<div id="assets-under-management-28" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.ADAPT_Very_Conservative_Portfolio.aum.png" /><em>from 2021-02-28 through 2026-01-31 .</em><br />
+</p>
+<p><br />
+</p>
+</div>
+</div>
+<div id="historical-pre-2021" class="section level2">
+<h2>Historical (pre-2021)</h2>
+<div id="performance-29" class="section level3">
+<h3>Performance</h3>
+<p><img src="plots/pms-93.cum.pre.png" /></p>
+<p><img src="plots/pms-93.factor.cum.pre.png" /></p>
+</div>
+<div id="assets-under-management-29" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-93.aum.pre.png" /></p>
+</div>
+</div>
+
+&nbsp;
+&nbsp;
+<hr />
+<p style="text-align: center;">Copyright &copy; 2023 SAS Data Analytics Pvt. Ltd. All rights reserved.</p>
+<p style="text-align: center;"><a href="https://github.com/stockviz/reports/issues">&#x1F41E;</a></p>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

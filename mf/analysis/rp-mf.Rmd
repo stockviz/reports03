@@ -1,0 +1,261 @@
+---
+params:
+  scheme_code: 0
+  benchmark: ""
+title: Fund Analysis
+editor_options:
+  chunk_output_type: console
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    self_contained: false
+    lib_dir: rmdlib
+    includes:
+        in_header: ../header.html
+        after_body: ../../footer.html
+---
+
+```{r, init_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+createdDate <- gsub(" 0", " ",format(Sys.Date(), "%B %d, %Y"))
+idPath <- ".."
+
+library('RODBC')
+library('quantmod')
+library('PerformanceAnalytics')
+
+library('tidyverse')
+library('lubridate')
+library('ggthemes')
+library('reshape2')
+library('viridis')
+library('DT')
+library('ggrepel')
+
+library('scales')
+library('sysfonts')
+library('showtext')
+library('ggradar') # remotes::install_github("ricardo-bion/ggradar")
+
+font_add_google("Kanit", "kanit")
+#font_add_google("Lobster Two", "lobstertwo")
+font_add_google("Roboto", "roboto")
+showtext_auto()
+
+options(stringsAsFactors = FALSE)
+options("scipen"=100)
+
+benchmark_indices <- list(LARGECAP = c('NIFTY 100 TR', 'NIFTY100 QUALITY 30 TR', 'NIFTY500 VALUE 50 TR'), MIDCAP = c('NIFTY MIDCAP 150 TR', 'NIFTY MIDCAP150 QUALITY 50 TR', 'NIFTY500 VALUE 50 TR'))
+
+schemeCode <- params$scheme_code
+benchMark <- params$benchmark
+indices <- benchmark_indices[[benchMark]]
+
+#source("C:/stockviz/r/config.r")
+source("/mnt/hollandr/config.r")
+
+lcon <- odbcDriverConnect(sprintf("Driver={ODBC Driver 17 for SQL Server};Server=%s;Database=%s;Uid=%s;Pwd=%s;", ldbserver, ldbname, ldbuser, ldbpassword), case = "nochange", believeNRows = TRUE)
+
+asofDt<-sqlQuery(lcon, sprintf("select max(as_of) from mf_nav_history where scheme_code=%s", schemeCode))[[1]]
+startDate <- Sys.Date() - 5*365
+
+schemeName <- sqlQuery(lcon, sprintf("select scheme_name from mf_nav_history where scheme_code=%s and as_of='%s'", schemeCode, asofDt))[[1]]
+
+iDf1 <- sqlQuery(lcon, sprintf("select as_of, nav from mf_nav_history where scheme_code=%s and as_of >= '%s' and as_of <= '%s'", schemeCode, startDate, asofDt))
+iXts <- xts(iDf1[,2], iDf1[,1])
+
+retXts <- monthlyReturn(iXts)
+retWeekly <- weeklyReturn(iXts)
+retDaily <- dailyReturn(iXts)
+retAnn <- annualReturn(iXts)
+
+names(retXts) <- c("MF")
+names(retWeekly) <- c("MF")
+names(retDaily) <- c("MF")
+names(retAnn) <- c("MF")
+
+iRetXts <- NULL
+iRetWeekly <- NULL
+iRetDaily <- NULL
+iRetAnn <- NULL
+for(iName in indices){
+	iDf2 <- sqlQuery(lcon, sprintf("select time_stamp, px_close from BHAV_INDEX where index_name='%s' and time_stamp >= '%s' and time_stamp <= '%s'", iName, startDate, asofDt))
+	iXts <- xts(iDf2[,2], iDf2[,1])
+	
+	iRetXts <- merge.xts(iRetXts, monthlyReturn(iXts))
+	iRetWeekly <- merge.xts(iRetWeekly, weeklyReturn(iXts))
+	iRetDaily <- merge.xts(iRetDaily, dailyReturn(iXts))
+	iRetAnn <- merge.xts(iRetAnn, annualReturn(iXts))
+}
+
+names(iRetXts) <- indices
+names(iRetWeekly) <- indices
+names(iRetDaily) <- indices
+names(iRetAnn) <- indices
+```
+
+---
+subtitle: `r schemeName`
+date: `r createdDate`
+---
+
+```{r, perf_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+cumRetChart <- chart.CumReturns(merge(retDaily, iRetDaily), main = schemeName, legend.loc = 'topleft')
+drawdownChart <- chart.Drawdown(merge(retDaily, iRetDaily), main = schemeName, legend.loc = 'bottomleft')
+
+retAnn2 <- retAnn
+index(retAnn2) <- as.Date(sprintf("%s-25", strftime(index(retAnn2), '%Y-%m')))
+iRetAnn2 <- iRetAnn
+index(iRetAnn2) <- as.Date(sprintf("%s-25", strftime(index(iRetAnn2), '%Y-%m')))
+
+annXts <- merge(retAnn2, iRetAnn2)
+toPlotAnn <- data.frame(annXts*100)
+toPlotAnn$Y <- year(index(annXts))
+
+maxYear <- length(unique(toPlotAnn$Y))
+toPlotAnn <- melt(toPlotAnn, id='Y')
+minRet <- min(toPlotAnn$value)
+toPlotAnn$Y <- factor(toPlotAnn$Y, levels = unique(toPlotAnn$Y))
+
+annRetPlot <- ggplot(toPlotAnn, aes(x=Y, y=value, fill=variable)) +
+	theme_economist() +
+	geom_bar(stat = "identity", position = position_dodge()) +
+	geom_text_repel(aes(label = sprintf('%.2f', value)), position = position_dodge(0.9)) +
+	scale_fill_viridis(discrete = TRUE) +
+	labs(x = "Year", y="Returns (%)", fill="", color="", size="", title=sprintf("%s", schemeName), subtitle=sprintf("Annual Returns [%s:%s]", first(index(retDaily)), last(index(retDaily)))) +
+	annotate("text", x=maxYear, y=minRet, label = "@StockViz", hjust=1, vjust=0, col="white", cex=6, fontface = "bold", alpha = 0.8)
+```
+
+```{r, lm_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+rollingPlots <- list()
+for(benchIndex in 1:length(indices)){
+	allXts <- merge(retWeekly, iRetWeekly[, 1:benchIndex])
+	allXts <- na.omit(allXts)
+	
+	benchNames <- paste0("B", seq(1:benchIndex))
+	names(allXts) <- c('A', benchNames)
+	
+	rollingFit <- NULL
+	for(i in 50:nrow(allXts)){
+		subXts <- allXts[(i-49):i]
+		linearFit <- lm(formula(paste0("A ~ ", paste(benchNames, collapse='+'))), data.frame(subXts))
+		lmCoeffs <- c(toString(index(allXts[i])), 
+						as.numeric(linearFit$coeff), 
+						100*summary(linearFit)$adj.r.squared, 
+						as.numeric(Return.cumulative(subXts[,1]) - Return.cumulative(subXts[,2])))
+	
+		rollingFit <- rbind.data.frame(rollingFit, lmCoeffs)
+	}
+	names(rollingFit) <- c("ASOF", "Ax100", indices[1:benchIndex], "ar2", "XS")
+	
+	rollingFit[, -1] <- sapply(rollingFit[, -1], as.numeric)
+	rollingFit$ASOF <- as.Date(rollingFit$ASOF)
+	rollingFit$Ax100 <- rollingFit$Ax100 * 100
+		
+	toPlot <- within(rollingFit, rm('ar2'))
+	toPlot <- melt(toPlot, id='ASOF')
+	#toPlot$ASOF <- factor(toPlot$ASOF, levels=unique(toPlot$ASOF))
+	rollingPlots[[benchIndex]] <- ggplot(toPlot, aes(x=ASOF, y=value, color=variable, group=variable, size=variable)) +
+		theme_economist() +
+		geom_line() +
+		theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+		scale_color_viridis(discrete = TRUE) +
+		scale_size_manual(values = seq(from=1, by=0.25, length.out=length(unique(toPlot$variable)))) +
+		scale_x_date(breaks = "6 months", date_labels="%b-%d-%Y") +
+		labs(x = "", y="", fill="", color="", size="", title=sprintf("%s", schemeName), subtitle=sprintf("Rolling 50 weeks [%s:%s]", first(index(allXts)), last(index(allXts)))) +
+		annotate("text", x=last(index(allXts)), y=min(allXts), label = "@StockViz", hjust=1, vjust=0, col="white", cex=6, fontface = "bold", alpha = 0.8)
+}
+
+```
+
+```{r, returns_chart_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE, fig.height=6, fig.width=12}
+cat("\n\n### Annual Returns", "\n\n")
+print(annRetPlot)
+cat("\n\n### Cumulative Returns", "\n\n")
+print(cumRetChart)
+cat("\n\n### Drawdowns", "\n\n")
+print(drawdownChart)
+```
+
+```{r, metrics_radar_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE, fig.height=12, fig.width=12}
+load(paste0(idPath, "/midcapFunds.RData"))
+load(paste0(idPath, "/largecapFunds.RData"))
+metricMap <- read.csv("../../metric_map.csv")
+
+if (benchMark == 'LARGECAP'){
+	schemeCodes <- paste(largecapFunds$scheme_code, collapse=",")
+} else if (benchMark == 'MIDCAP'){
+	schemeCodes <- paste(midcapFunds$scheme_code, collapse=",")
+}
+
+statsDf <- sqlQuery(lcon, sprintf("select SCHEME_CODE, ID, VAL from MF_CAPM where SCHEME_CODE in (%s)", schemeCodes)) 
+
+rankTibs <- statsDf %>% 
+	pivot_wider(names_from=ID, values_from=VAL) %>% 
+	mutate(BETA = ifelse(BETA == 0, 0.0001, BETA)) %>% 
+	mutate(BETA = 1/BETA) %>% 
+	mutate_at(vars(-SCHEME_CODE), rank) 
+
+metricDf <- statsDf %>% filter(SCHEME_CODE == schemeCode) %>%
+	inner_join(rankTibs %>% filter(SCHEME_CODE == schemeCode) %>% pivot_longer(!SCHEME_CODE, names_to='ID', values_to='VAL') %>% select(ID, VAL), by='ID') %>%
+	inner_join(metricMap, by='ID') %>%
+	mutate(METRIC = paste0(DESC, ' (', ID, ')'), VAL = round(VAL.x, 5)) %>%
+	rename(SCORE = VAL.y) %>%
+	select(METRIC, VAL, SCORE) %>%
+	as.data.frame()
+
+cat("\n\n\n### Performance Metrics")
+mfMetricsDT <- datatable(metricDf, rownames = F, class = 'cell-border stripe', filter='none', colnames = c("", names(metricDf)[-1]), options = list(dom = 't', pageLength = 30, ordering=F))
+htmltools::tagList(print(mfMetricsDT))
+
+statsTibs <- statsDf %>% 
+	pivot_wider(names_from=ID, values_from=VAL) %>% 
+	mutate(BETA = ifelse(BETA == 0, 0.0001, BETA)) %>% 
+	mutate(BETA = 1/BETA) %>% 
+	mutate_at(vars(-SCHEME_CODE), rescale)
+				
+avgTibs <- statsTibs %>% summarize_at(vars(-SCHEME_CODE), mean) %>% mutate(SCHEME_CODE='Average')
+
+toPlot <- statsTibs %>% filter(SCHEME_CODE==schemeCode) %>% mutate(SCHEME_CODE = 'MF') %>% bind_rows(avgTibs) %>% as.data.frame()
+			
+rplot <- ggradar(plot.data = toPlot,
+		font.radar = "roboto",
+		grid.label.size = 5,  # Affects the grid annotations (0%, 50%, etc.)
+		axis.label.size = 8, # Afftects the names of the variables
+		group.point.size = 3   # Simply the size of the point 
+	  ) +
+	labs(title = schemeName, tag=paste("@StockViz", asofDt)) + 
+	theme(
+	  plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+	  panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+	  plot.title.position = "plot", # slightly different from default
+	  plot.title = element_text(
+			family = "noto", 
+			size = 38,
+			color = "#2a475e"
+		),
+	  plot.tag = element_text(
+			family = "kanit", 
+			size = 16,
+			color = "lightgrey",
+		),
+	  plot.tag.position = "bottom"
+	) +
+	theme(
+		legend.position = c(1, 0),  
+		legend.justification = c(1, 0),
+		legend.text = element_text(size = 24, family = "roboto"),
+		legend.key = element_rect(fill = NA, color = NA),
+		legend.background = element_blank()
+	)
+	
+print(rplot)
+```
+
+```{r, lm_chart_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE, fig.height=7, fig.width=12}
+cat("\n\n\n### Rolling Linear Regression", "\n\n")
+for(benchIndex in 1:length(indices)){
+	print(rollingPlots[[benchIndex]])
+}
+
+```

@@ -1,0 +1,129 @@
+---
+title: Mutual Fund Surveillance
+subtitle: StockViz
+editor_options:
+  chunk_output_type: console
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    self_contained: false
+    lib_dir: analysis/rmdlib		
+    includes:
+        in_header: header.html
+        after_body: ../footer.html
+---
+
+```{r dt_chunk, include=FALSE}
+
+createdDate <- gsub(" 0", " ",format(Sys.Date(), "%B %d, %Y"))
+
+```
+
+---
+date: `r createdDate`
+---
+
+*Questions? Ask here: [The Alpha Bet](https://stockviz.substack.com/p/the-alpha-bet)! *
+
+```{r, calc_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+idPath <- "."
+load(paste0(idPath, "/midcapFunds.RData"))
+load(paste0(idPath, "/largecapFunds.RData"))
+
+startDate <- min(largecapFunds$stdt, midcapFunds$stdt)
+asofDt<-max(largecapFunds$ltdt, midcapFunds$ltdt)
+
+library('RODBC')
+library('quantmod')
+library('PerformanceAnalytics')
+library('xtable')
+library('knitr')
+library('kableExtra')
+library('DT')
+
+options(stringsAsFactors = FALSE)
+options("scipen"=100)
+
+#source("C:/stockviz/r/config.r")
+source("/mnt/hollandr/config.r")
+
+lcon <- odbcDriverConnect(sprintf("Driver={ODBC Driver 17 for SQL Server};Server=%s;Database=%s;Uid=%s;Pwd=%s;", ldbserver, ldbname, ldbuser, ldbpassword), case = "nochange", believeNRows = TRUE)
+
+benchmark_indices <- list(LARGECAP = c('NIFTY 100 TR', 'NIFTY100 QUALITY 30 TR', 'NIFTY500 VALUE 50 TR'), MIDCAP = c('NIFTY MIDCAP 150 TR', 'NIFTY MIDCAP150 QUALITY 50 TR', 'NIFTY500 VALUE 50 TR'))
+
+analyzeFunds <- function(schemeCodes, indices){
+	retXts <- NULL
+	fundNames <- c()
+	
+	for(i in 1:length(schemeCodes)){
+		fname <- sqlQuery(lcon, sprintf("select scheme_name from mf_nav_history where scheme_code=%d and as_of='%s'", schemeCodes[i], asofDt))[[1]]
+		fundNames <- c(fundNames, fname)
+		
+		iDf <- sqlQuery(lcon, sprintf("select as_of, nav from mf_nav_history where scheme_code=%d and as_of >= '%s' and as_of <= '%s'", schemeCodes[i], startDate, asofDt))
+		iXts <- xts(iDf[,2], iDf[,1])
+		retXts <- merge.xts(retXts, monthlyReturn(iXts))
+	}
+
+	names(retXts) <- schemeCodes
+
+	iRetXts <- NULL
+	for(iName in indices){
+		iDf <- sqlQuery(lcon, sprintf("select time_stamp, px_close from BHAV_INDEX where index_name='%s' and time_stamp >= '%s' and time_stamp <= '%s'", iName, startDate, asofDt))
+		iXts <- xts(iDf[,2], iDf[,1])
+		iRetXts <- merge.xts(iRetXts, monthlyReturn(iXts))
+	}
+
+	names(iRetXts) <- indices
+
+	######################
+
+	fitList <- list()
+	for(benchIndex in 1:length(indices)){
+		mfFits <- NULL
+		for(mfIndex in 1:ncol(retXts)){
+			allXts <- merge(retXts[, mfIndex], iRetXts[, 1:benchIndex])
+			allXts <- na.omit(allXts)
+			
+			benchNames <- paste0("B", seq(1:benchIndex))
+			names(allXts) <- c('A', benchNames)
+			
+			linearFit <- lm(formula(paste0("A ~ ", paste(benchNames, collapse='+'))), data.frame(allXts))
+			#summary(linearFit)$adj.r.squared
+			lmCoeffs <- c(round(as.numeric(linearFit$coeff), 5), sprintf('<a href="/reports03/mf/analysis/rp-%s.html" target="_blank">>>></a>', schemeCodes[mfIndex]))
+			
+			mfFits <- rbind.data.frame(mfFits, lmCoeffs)
+		}
+		names(mfFits) <- c('ALPHA', indices[1:benchIndex], 'more')
+		mfFits$FUND <- fundNames
+		
+		fitList <- append(fitList, list(mfFits))
+	}
+
+	mfDT <- list()
+	for(i in 1:length(fitList)){
+		X <- fitList[[i]]
+		mfDT[[i]] <- datatable(X[, c(ncol(X), 1:(ncol(X)-1))], rownames = F, escape = c(rep(T, ncol(X)-1), F), class = 'cell-border stripe', filter='none', options = list(dom = 't', pageLength = 30))
+	}
+	
+	return(mfDT)
+}
+
+largemfDT <- analyzeFunds(largecapFunds$scheme_code, benchmark_indices[['LARGECAP']])
+midmfDT <- analyzeFunds(midcapFunds$scheme_code, benchmark_indices[['MIDCAP']])
+
+```{r, large_cap_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+cat("### Large-cap Funds", "\n")
+
+htmltools::tagList(
+	lapply(largemfDT, print)
+)
+```
+
+```{r, mid_cap_chunk, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+cat("### Mid-cap Funds", "\n")
+
+htmltools::tagList(
+	lapply(midmfDT, print)
+)
+```

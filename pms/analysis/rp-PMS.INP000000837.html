@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2026-03-01" />
+
+<title>KOTAK MAHINDRA ASSET MANAGEMENT COMPANY LTD</title>
+
+<script src="rmdlib/header-attrs-2.30/header-attrs.js"></script>
+<script src="rmdlib/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="rmdlib/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="rmdlib/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="rmdlib/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="rmdlib/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="rmdlib/navigation-1.1/tabsets.js"></script>
+<script src="rmdlib/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="rmdlib/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="rmdlib/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
+<meta name="description" content="PMS - Portfolio Management Service - analysis. Sharpe, AUM, etc..." />
+<meta property="og:image" content="https://avatars3.githubusercontent.com/u/21966469?s=400&v=4" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">StockViz</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-globe"></span>
+     
+    Macro
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-bnd.html">Fixed Income</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cur.html">Currencies</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cmdy.html">Commodities</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-arrows-v"></span>
+     
+    52w H&amp;L
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-rocket"></span>
+     
+    ATH
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-magnet"></span>
+     
+    Drawdowns
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-train"></span>
+     
+    Streaks
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-hand-pointer-o"></span>
+     
+    Indian Indices
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-risk.html">Performance Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-IN.html">Index Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-MKT-CAP.html">Classification Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-industry.html">Industry Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-syn.html">Synthetic Indices</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-vol-NIFTY.html">NIFTY Volatility</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-valuations.html">Valuations</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/results-IN.html">Result Dates</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/eq-in/rp-margin.html">Margin Report</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-shopping-bag"></span>
+     
+    Funds
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports03/mf/rp-IN.html">Indian Mutual Funds</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports03/pms/rp-IN.html">Indian PMS</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-risk.html">US ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-sector.html">US Sector ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-country.html">Country $ ETFs</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-percent"></span>
+     
+    Fama-French
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-industry.html">Industry</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-factors.html">Factors</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-regression.html">Regressions</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://stockviz.biz">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://stockviz.substack.com">
+    <span class="fa fa-envelope-o"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">KOTAK MAHINDRA ASSET MANAGEMENT COMPANY LTD</h1>
+<h3 class="subtitle">StockViz</h3>
+<h4 class="date">March 1, 2026</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#kotak-evolv-plus-asset-allocation-investment-approach">Kotak Evolv Plus Asset Allocation Investment Approach</a></li>
+<li><a href="#kotak-india-focus-portfolio-investment-approach">Kotak India Focus Portfolio Investment Approach</a></li>
+<li><a href="#kotak-evolv-aggressive-asset-allocation-investment-approach">Kotak Evolv Aggressive Asset Allocation Investment Approach</a></li>
+<li><a href="#kotak-evolv-equity-investment-approach">Kotak Evolv Equity Investment Approach</a></li>
+<li><a href="#kotak-pioneer-model-strategy-investment-approach-aggressive">Kotak Pioneer Model Strategy Investment Approach Aggressive</a></li>
+<li><a href="#kotak-evolv-moderate-asset-allocation-investment-approach">Kotak Evolv Moderate Asset Allocation Investment Approach</a></li>
+<li><a href="#kotak-small-and-midcap-equity-investment-approach">Kotak Small And Midcap Equity Investment Approach</a></li>
+<li><a href="#kotak-fintech-investment-approach">Kotak Fintech Investment Approach</a></li>
+<li><a href="#kotak-evolv-conservative-asset-allocation-investment-approach">Kotak Evolv Conservative Asset Allocation Investment Approach</a></li>
+<li><a href="#kotak-pharma-and-healthcare-investment-approach">Kotak Pharma And Healthcare Investment Approach</a></li>
+<li><a href="#kotak-evolv-liquid-investment-approach">Kotak Evolv Liquid Investment Approach</a></li>
+<li><a href="#kotak-pioneer-model-strategy-investment-approach-moderate">Kotak Pioneer Model Strategy Investment Approach Moderate</a></li>
+<li><a href="#kotak-india-focus-portfolio-investment-approach-customised">Kotak India Focus Portfolio Investment Approach Customised</a></li>
+<li><a href="#kotak-liquid-investment-approach">Kotak Liquid Investment Approach</a></li>
+<li><a href="#kotak-pioneer-model-strategy-investment-approach-conservative">Kotak Pioneer Model Strategy Investment Approach Conservative</a></li>
+<li><a href="#kotak-equity-portfolio-investment-approach">Kotak Equity Portfolio Investment Approach</a></li>
+<li><a href="#historical-pre-2021">Historical (pre-2021)</a></li>
+</ul>
+</div>
+
+<p><em>Source: <a href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doPmr=yes">SEBI Portfolio Manager Monthly Report</a> </em></p>
+<div id="kotak-evolv-plus-asset-allocation-investment-approach" class="section level2">
+<h2>Kotak Evolv Plus Asset Allocation Investment Approach</h2>
+<div id="performance" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 1146.47 cr; Sharpe Ratio: 0.54 ; Information Ratio: -349.67</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Plus_Asset_Allocation_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Plus_Asset_Allocation_Investment_Approach.aum.png" /><em>from 2023-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-india-focus-portfolio-investment-approach" class="section level2">
+<h2>Kotak India Focus Portfolio Investment Approach</h2>
+<div id="performance-1" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 775.29 cr; Sharpe Ratio: 0.15 ; Information Ratio: 17.71</p>
+<p><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach.cum.png" /><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-1" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach.aum.png" /><em>from 2025-02-28 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-evolv-aggressive-asset-allocation-investment-approach" class="section level2">
+<h2>Kotak Evolv Aggressive Asset Allocation Investment Approach</h2>
+<div id="performance-2" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 127.06 cr; Sharpe Ratio: 0.86 ; Information Ratio: -142.94</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Aggressive_Asset_Allocation_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management-2" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Aggressive_Asset_Allocation_Investment_Approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-evolv-equity-investment-approach" class="section level2">
+<h2>Kotak Evolv Equity Investment Approach</h2>
+<div id="performance-3" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 75.5 cr; Sharpe Ratio: -0.33 ; Information Ratio: -138.57</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Equity_Investment_Approach.cum.png" /><img src="plots/pms-293.Kotak_Evolv_Equity_Investment_Approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-3" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Equity_Investment_Approach.aum.png" /><em>from 2024-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-pioneer-model-strategy-investment-approach-aggressive" class="section level2">
+<h2>Kotak Pioneer Model Strategy Investment Approach Aggressive</h2>
+<div id="performance-4" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 65.04 cr; Sharpe Ratio: 1.47 ; Information Ratio: -58.27</p>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Aggressive.cum.png" /></p>
+</div>
+<div id="assets-under-management-4" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Aggressive.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-evolv-moderate-asset-allocation-investment-approach" class="section level2">
+<h2>Kotak Evolv Moderate Asset Allocation Investment Approach</h2>
+<div id="performance-5" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 45.2 cr; Sharpe Ratio: 0.9 ; Information Ratio: -363.74</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Moderate_Asset_Allocation_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management-5" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Moderate_Asset_Allocation_Investment_Approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-small-and-midcap-equity-investment-approach" class="section level2">
+<h2>Kotak Small And Midcap Equity Investment Approach</h2>
+<div id="performance-6" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 43.05 cr; Sharpe Ratio: 0.58 ; Information Ratio: 13.17</p>
+<p><img src="plots/pms-293.Kotak_Small_and_Midcap_Equity_Investment_Approach.cum.png" /><img src="plots/pms-293.Kotak_Small_and_Midcap_Equity_Investment_Approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-6" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Small_and_Midcap_Equity_Investment_Approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-fintech-investment-approach" class="section level2">
+<h2>Kotak Fintech Investment Approach</h2>
+<div id="performance-7" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 23.08 cr; Sharpe Ratio: 0.63 ; Information Ratio: 20.79</p>
+<p><img src="plots/pms-293.Kotak_FinTech_Investment_Approach.cum.png" /><img src="plots/pms-293.Kotak_FinTech_Investment_Approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-7" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_FinTech_Investment_Approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-evolv-conservative-asset-allocation-investment-approach" class="section level2">
+<h2>Kotak Evolv Conservative Asset Allocation Investment Approach</h2>
+<div id="performance-8" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 22.82 cr; Sharpe Ratio: 0.99 ; Information Ratio: -374.31</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Conservative_Asset_Allocation_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management-8" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Conservative_Asset_Allocation_Investment_Approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-pharma-and-healthcare-investment-approach" class="section level2">
+<h2>Kotak Pharma And Healthcare Investment Approach</h2>
+<div id="performance-9" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 20.84 cr; Sharpe Ratio: 0.55 ; Information Ratio: 8.63</p>
+<p><img src="plots/pms-293.Kotak_Pharma_and_Healthcare_Investment_approach.cum.png" /><img src="plots/pms-293.Kotak_Pharma_and_Healthcare_Investment_approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-9" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Pharma_and_Healthcare_Investment_approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-evolv-liquid-investment-approach" class="section level2">
+<h2>Kotak Evolv Liquid Investment Approach</h2>
+<div id="performance-10" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 15.18 cr; Sharpe Ratio: -0.19 ; Information Ratio: -68.16</p>
+<p><img src="plots/pms-293.Kotak_Evolv_Liquid_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management-10" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Evolv_Liquid_Investment_Approach.aum.png" /><em>from 2023-07-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-pioneer-model-strategy-investment-approach-moderate" class="section level2">
+<h2>Kotak Pioneer Model Strategy Investment Approach Moderate</h2>
+<div id="performance-11" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 7.74 cr; Sharpe Ratio: 1.52 ; Information Ratio: -170.18</p>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Moderate.cum.png" /></p>
+</div>
+<div id="assets-under-management-11" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Moderate.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-india-focus-portfolio-investment-approach-customised" class="section level2">
+<h2>Kotak India Focus Portfolio Investment Approach Customised</h2>
+<div id="performance-12" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 7.36 cr; Sharpe Ratio: -0.87 ; Information Ratio: -138.27</p>
+<p><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach_Customised.cum.png" /><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach_Customised.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-12" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_India_Focus_Portfolio_Investment_Approach_Customised.aum.png" /><em>from 2025-01-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-liquid-investment-approach" class="section level2">
+<h2>Kotak Liquid Investment Approach</h2>
+<div id="performance-13" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: DEBT ; AUM: Rs. 1.49 cr; Sharpe Ratio: -0.81 ; Information Ratio: -118.8</p>
+<p><img src="plots/pms-293.Kotak_Liquid_Investment_Approach.cum.png" /></p>
+</div>
+<div id="assets-under-management-13" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Liquid_Investment_Approach.aum.png" /><em>from 2023-03-31 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-pioneer-model-strategy-investment-approach-conservative" class="section level2">
+<h2>Kotak Pioneer Model Strategy Investment Approach Conservative</h2>
+<div id="performance-14" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: MULTI ASSET ; AUM: Rs. 1.15 cr; Sharpe Ratio: 1.45 ; Information Ratio: -53.35</p>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Conservative.cum.png" /></p>
+</div>
+<div id="assets-under-management-14" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Pioneer_Model_Strategy_Investment_Approach_Conservative.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+</div>
+</div>
+<div id="kotak-equity-portfolio-investment-approach" class="section level2">
+<h2>Kotak Equity Portfolio Investment Approach</h2>
+<div id="performance-15" class="section level3">
+<h3>Performance</h3>
+<p>Asset Class: EQUITY ; AUM: Rs. 1 cr; Sharpe Ratio: 0.83 ; Information Ratio: 53.03</p>
+<p><img src="plots/pms-293.Kotak_Equity_Portfolio_Investment_approach.cum.png" /><img src="plots/pms-293.Kotak_Equity_Portfolio_Investment_approach.factor.cum.png" /></p>
+</div>
+<div id="assets-under-management-15" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.Kotak_Equity_Portfolio_Investment_approach.aum.png" /><em>from 2023-04-30 through 2026-01-31 .</em><br />
+</p>
+<p><br />
+</p>
+</div>
+</div>
+<div id="historical-pre-2021" class="section level2">
+<h2>Historical (pre-2021)</h2>
+<div id="performance-16" class="section level3">
+<h3>Performance</h3>
+<p><img src="plots/pms-293.cum.pre.png" /></p>
+<p><img src="plots/pms-293.factor.cum.pre.png" /></p>
+</div>
+<div id="assets-under-management-16" class="section level3">
+<h3>Assets Under Management</h3>
+<p><img src="plots/pms-293.aum.pre.png" /></p>
+</div>
+</div>
+
+&nbsp;
+&nbsp;
+<hr />
+<p style="text-align: center;">Copyright &copy; 2023 SAS Data Analytics Pvt. Ltd. All rights reserved.</p>
+<p style="text-align: center;"><a href="https://github.com/stockviz/reports/issues">&#x1F41E;</a></p>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
