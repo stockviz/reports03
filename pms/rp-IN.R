@@ -288,7 +288,7 @@ getStats <- function(){
                         caption = '@StockViz',
                         theme = theme_economist())
       
-      ggsave(sprintf("%s/pms-%d.aum.pre.png", reportPath, metaId), width = 12, height = 12, units = "in")
+      ggsave(sprintf("%s/pms-%d.aum.pre.png", reportPath, metaId), width = 12, height = 12, units = "in", dpi=160)
     }
     
     for(j in 2:ncol(strategyRets)){
@@ -378,7 +378,7 @@ getStats <- function(){
                         caption = '@StockViz',
                         theme = theme_economist())
       
-      ggsave(sprintf("%s/pms-%d.%s.aum.png", reportPath, metaId, stratFname), width = 12, height = 12, units = "in")
+      ggsave(sprintf("%s/pms-%d.%s.aum.png", reportPath, metaId, stratFname), width = 12, height = 12, units = "in", dpi=160)
       
       fileTracker <- rbind(fileTracker, c(metaId, sebiId, pmsName, stratFname, str_to_title(stratTname), sebiClass, aum, fundSr, fundIr, ret, as.character(minDt), as.character(maxDt)))
     }
