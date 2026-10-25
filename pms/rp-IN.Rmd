@@ -1,0 +1,143 @@
+---
+title: PMS Surveillance
+subtitle: StockViz
+editor_options:
+  chunk_output_type: console
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    self_contained: false
+    lib_dir: analysis/rmdlib		
+    includes:
+        in_header: header.html
+        after_body: ../footer.html
+---
+
+```{r dt_chunk, include=FALSE}
+
+createdDate <- gsub(" 0", " ",format(Sys.Date(), "%B %d, %Y"))
+
+```
+
+---
+date: `r createdDate`
+---
+
+*Source: [SEBI Portfolio Manager Monthly Report ](https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doPmr=yes) *
+
+```{r, calc_chunk, echo = FALSE, message = FALSE, warning = FALSE}
+library('RODBC')
+library('RPostgres')
+library('quantmod')
+library('tidyverse')
+
+library('xtable')
+library('knitr')
+library('kableExtra')
+library('DT')
+
+options(stringsAsFactors = FALSE)
+options("scipen"=100)
+
+source("/mnt/hollandr/config.r")
+reportPath <- "analysis/plots"
+
+load(file=sprintf("%s/fileTracker.Rdata", reportPath)) #fileTracker
+
+pgCon <- dbConnect(
+  RPostgres::Postgres(),
+  host = 'sweden',
+  user = ldbuser2,
+  password = ldbpassword2,
+  dbname = 'StockVizDyn',
+  sslmode = 'allow'
+)
+
+pmsMeta <- dbGetQuery(pgCon, "select * from sebi_pms_meta")
+
+totalAumDf <- dbGetQuery(pgCon, "select id, yr, mth, ln ->> 'total' aum 
+                                  from sebi_pms_data spd, 
+                                  jsonb_array_elements(val->'summary'->'aumBreakup') as ln
+                                  where ln->>'serviceType' = 'Discretionary'")
+
+invAppDf <- dbGetQuery(pgCon, "select id, yr, mth, ln ->> 'investmentApproach' strategy
+                         from sebi_pms_data spd, 
+                         jsonb_array_elements(val->'discretionaryServices'->'fundsInflow') as ln")
+
+totalAumDf <- totalAumDf |> mutate(aum = as.numeric(aum), 
+                                   dt = as.Date(sprintf("%d-%d-%d", yr, mth, 
+                                                        days_in_month(as.Date(sprintf("%d-%d-1", yr, mth))))))
+
+invAppDf <- invAppDf |> mutate(dt = as.Date(sprintf("%d-%d-%d", yr, mth, 
+                                                        days_in_month(as.Date(sprintf("%d-%d-1", yr, mth))))))
+
+grandTotalAum <- totalAumDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
+  inner_join(totalAumDf, by=join_by(id, maxDt == dt)) |> filter(aum > 0) |>
+  inner_join(pmsMeta, by=join_by(id)) |>
+  inner_join(idCnts, by=join_by(id)) |>
+  select(id, sebi_id, pms_name, maxDt, aum)
+  
+totalInvApp <- invAppDf |> group_by(id) |> summarise(maxDt = max(dt)) |>
+  inner_join(invAppDf, by=join_by(id, maxDt == dt)) |>
+  filter(strategy != 'total' & strategy != '0') |>
+  group_by(id) |>
+  summarise(Strategies = n())
+
+toDisplay <- grandTotalAum |>
+  inner_join(totalInvApp, by=join_by(id)) |>
+  rename(Name = pms_name, AsOf = maxDt, AUM = aum) |>
+  mutate(AUM = round(AUM, 0), 
+         more = if_else(file.exists(sprintf("analysis/rp-PMS.%s.html", sebi_id)), 
+							sprintf("<a href='/reports03/pms/analysis/rp-PMS.%s.html'>>></a>", sebi_id), 
+							'')) |>
+  select(-c(sebi_id, id)) |>
+  arrange(desc(AUM))
+  
+aumDT <- datatable(toDisplay, rownames = F, escape = c(rep(T, ncol(toDisplay)-1), F),   
+                   class = 'cell-border stripe', filter='none', 
+                   options = list(dom = 't', pageLength = nrow(toDisplay))) %>%
+        formatRound(c('AUM'), 2)
+
+strategySharpe <- fileTracker |> filter(as.Date(AS_OF) >= Sys.Date() - 3*30) |>
+  mutate(AUM = round(as.numeric(AUM), 2), 
+         SHARPE = round(as.numeric(SHARPE), 2), 
+         IR = round(as.numeric(IR), 2), 
+         RET = round(as.numeric(RET), 2),
+         more = if_else(file.exists(sprintf("analysis/rp-PMS.%s.html", SEBI_ID)), 
+							sprintf("<a href='/reports03/pms/analysis/rp-PMS.%s.html'>>></a>", SEBI_ID), 
+							'')) |>
+  filter(AUM > 0) |>
+  select(STRAT_TITLE, PMS_NAME, ASSET_CLASS, AUM, SHARPE, IR, RET, more) |>
+  rename(STRATEGY = STRAT_TITLE, PMS = PMS_NAME, ASSET = ASSET_CLASS, INFO_RATIO = IR, ANN_RET = RET) |>
+  arrange(desc(ANN_RET))
+
+sharpeDT <- datatable(strategySharpe, rownames = F, escape = c(rep(T, ncol(strategySharpe)-1), F), 
+                   class = 'cell-border stripe', filter='none', 
+                   options = list(dom = 't', pageLength = nrow(strategySharpe))) %>%
+            formatRound(c('AUM', 'SHARPE', 'INFO_RATIO', 'ANN_RET'), 2)
+
+```
+
+## Discretionary Services
+
+### Assets Under Management
+
+```{r, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+
+htmltools::tagList(
+  print(aumDT)
+)
+
+```
+
+### Strategy Assets Under Management & Performance
+
+```{r, echo = FALSE, results='asis', message = FALSE, warning = FALSE}
+
+htmltools::tagList(
+  print(sharpeDT)
+)
+
+```
+
