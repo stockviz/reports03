@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2026-10-30" />
+
+<title>Mutual Fund Surveillance</title>
+
+<script src="analysis/rmdlib/header-attrs-2.30/header-attrs.js"></script>
+<script src="analysis/rmdlib/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="analysis/rmdlib/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="analysis/rmdlib/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="analysis/rmdlib/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="analysis/rmdlib/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="analysis/rmdlib/navigation-1.1/tabsets.js"></script>
+<link href="analysis/rmdlib/htmltools-fill-0.5.9/fill.css" rel="stylesheet" />
+<script src="analysis/rmdlib/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="analysis/rmdlib/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="analysis/rmdlib/datatables-binding-0.32/datatables.js"></script>
+<link href="analysis/rmdlib/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="analysis/rmdlib/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="analysis/rmdlib/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="analysis/rmdlib/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="analysis/rmdlib/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="analysis/rmdlib/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="analysis/rmdlib/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
+<meta name="description" content="Mutual fund analysis. Alpha, beta, relative performance, etc..." />
+<meta property="og:image" content="https://avatars3.githubusercontent.com/u/21966469?s=400&v=4" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">StockViz</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-globe"></span>
+     
+    Macro
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-bnd.html">Fixed Income</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cur.html">Currencies</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/macro/rp-cmdy.html">Commodities</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-arrows-v"></span>
+     
+    52w H&amp;L
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/52wk-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-rocket"></span>
+     
+    ATH
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/ath-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-magnet"></span>
+     
+    Drawdowns
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/drawdowns-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-train"></span>
+     
+    Streaks
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-IN.html">India</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/streaks-US.html">US</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-hand-pointer-o"></span>
+     
+    Indian Indices
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-risk.html">Performance Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-IN.html">Index Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-MKT-CAP.html">Classification Changes</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-industry.html">Industry Metrics</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-syn.html">Synthetic Indices</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-vol-NIFTY.html">NIFTY Volatility</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/index/rp-valuations.html">Valuations</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports01/eq/results-IN.html">Result Dates</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/eq-in/rp-margin.html">Margin Report</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-shopping-bag"></span>
+     
+    Funds
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports03/mf/rp-IN.html">Indian Mutual Funds</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports03/pms/rp-IN.html">Indian PMS</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-risk.html">US ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-sector.html">US Sector ETFs</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-country.html">Country $ ETFs</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-percent"></span>
+     
+    Fama-French
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-industry.html">Industry</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-factors.html">Factors</a>
+    </li>
+    <li>
+      <a href="https://stockviz.github.io/reports02/etf-us/rp-fama-french-regression.html">Regressions</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://stockviz.biz">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://stockviz.substack.com">
+    <span class="fa fa-envelope-o"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Mutual Fund Surveillance</h1>
+<h3 class="subtitle">StockViz</h3>
+<h4 class="date">October 30, 2026</h4>
+
+</div>
+
+
+<p><em>Questions? Ask here: <a
+href="https://stockviz.substack.com/p/the-alpha-bet">The Alpha Bet</a>!
+</em></p>
+<div id="large-cap-funds" class="section level3">
+<h3>Large-cap Funds</h3>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-8dcfcb156e409d7977f3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-8dcfcb156e409d7977f3">{"x":{"filter":"none","vertical":false,"data":[["Union Largecap Fund - Direct Plan - Growth Option","Sundaram Large Cap Fund (Formerly Known as Sundaram Blue Chip Fund)Direct Plan - Growth","Invesco India Large Cap Fund - Direct Plan - Growth","LIC MF Large Cap Fund-Direct Plan-Growth","Taurus Large Cap Fund - Direct Plan - Growth","JM Large Cap Fund (Direct) - Growth Option","Axis Large Cap Fund - Direct Plan - Growth","Mahindra Manulife Large Cap Fund - Direct Plan -Growth","ITI Large Cap Fund - Direct Plan - Growth Option","PGIM India Large Cap Fund - Direct Plan - Growth","Mirae Asset Large Cap Fund - Direct Plan - Growth","Kotak Large Cap  Fund - Growth - Direct","Nippon India Large Cap Fund - Direct Plan Growth Plan - Growth Option","BANK OF INDIA Large Cap Fund Direct Plan Growth","BANDHAN Large Cap Fund-Direct Plan-Growth","ICICI Prudential Large Cap Fund (erstwhile Bluechip Fund) - Direct Plan - Growth","Franklin India Large Cap Fund- Direct - Growth","HSBC Large Cap Fund - Direct Growth","Tata Large Cap Fund -Direct Plan Growth Option","BARODA BNP PARIBAS LARGE CAP Fund - Direct Plan - Growth Option","Edelweiss Large Cap Fund - Direct Plan-Growth option"],["-0.00053","0.00083","0.00232","-0.0016","0.00277","0.00219","-0.00221","0.00044","0.00033","-0.00022","0.00026","0.00113","0.00374","0.00091","0.00147","0.00267","0.00067","0.00132","0.00107","0.00239","0.00197"],["0.92766","0.88984","1.02098","0.96868","1.03315","0.97602","0.92088","0.93971","0.98163","0.92236","0.93006","0.9382","0.95911","1.01084","0.95773","0.87704","0.91496","0.96852","1.00153","0.95066","0.94101"],["<a href=\"/reports03/mf/analysis/rp-141248.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148507.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120392.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120267.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118870.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120490.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120465.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-146549.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148353.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-138312.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118825.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120152.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118632.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148980.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118479.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120586.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118531.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120030.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119160.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150187.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118617.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY 100 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY 100 TR","targets":2},{"name":"more","targets":3}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d5e09d298310aaacbede" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d5e09d298310aaacbede">{"x":{"filter":"none","vertical":false,"data":[["Union Largecap Fund - Direct Plan - Growth Option","Sundaram Large Cap Fund (Formerly Known as Sundaram Blue Chip Fund)Direct Plan - Growth","Invesco India Large Cap Fund - Direct Plan - Growth","LIC MF Large Cap Fund-Direct Plan-Growth","Taurus Large Cap Fund - Direct Plan - Growth","JM Large Cap Fund (Direct) - Growth Option","Axis Large Cap Fund - Direct Plan - Growth","Mahindra Manulife Large Cap Fund - Direct Plan -Growth","ITI Large Cap Fund - Direct Plan - Growth Option","PGIM India Large Cap Fund - Direct Plan - Growth","Mirae Asset Large Cap Fund - Direct Plan - Growth","Kotak Large Cap  Fund - Growth - Direct","Nippon India Large Cap Fund - Direct Plan Growth Plan - Growth Option","BANK OF INDIA Large Cap Fund Direct Plan Growth","BANDHAN Large Cap Fund-Direct Plan-Growth","ICICI Prudential Large Cap Fund (erstwhile Bluechip Fund) - Direct Plan - Growth","Franklin India Large Cap Fund- Direct - Growth","HSBC Large Cap Fund - Direct Growth","Tata Large Cap Fund -Direct Plan Growth Option","BARODA BNP PARIBAS LARGE CAP Fund - Direct Plan - Growth Option","Edelweiss Large Cap Fund - Direct Plan-Growth option"],["-0.00047","0.00094","0.00217","-0.00184","0.00274","0.00213","-0.00235","0.00046","0.00044","-0.00036","0.00017","0.00107","0.00389","0.00081","0.00132","0.00275","0.00037","0.00129","0.00104","0.00222","0.00192"],["0.95795","0.94979","0.93593","0.84183","1.01783","0.94496","0.82364","0.95029","1.0436","0.84832","0.87954","0.89987","1.03718","0.95576","0.86336","0.92895","0.73439","0.95225","0.9791","0.86277","0.91417"],["-0.03183","-0.063","0.08938","0.1333","0.0161","0.03264","0.1014","-0.01113","-0.06512","0.0778","0.05309","0.04036","-0.08203","0.05789","0.09788","-0.05331","0.1895","0.0171","0.02362","0.0926","0.0282"],["<a href=\"/reports03/mf/analysis/rp-141248.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148507.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120392.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120267.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118870.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120490.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120465.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-146549.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148353.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-138312.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118825.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120152.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118632.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148980.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118479.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120586.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118531.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120030.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119160.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150187.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118617.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY 100 TR<\/th>\n      <th>NIFTY100 QUALITY 30 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY 100 TR","targets":2},{"name":"NIFTY100 QUALITY 30 TR","targets":3},{"name":"more","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-8ad4dedc22e5dbb96aaa" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-8ad4dedc22e5dbb96aaa">{"x":{"filter":"none","vertical":false,"data":[["Union Largecap Fund - Direct Plan - Growth Option","Sundaram Large Cap Fund (Formerly Known as Sundaram Blue Chip Fund)Direct Plan - Growth","Invesco India Large Cap Fund - Direct Plan - Growth","LIC MF Large Cap Fund-Direct Plan-Growth","Taurus Large Cap Fund - Direct Plan - Growth","JM Large Cap Fund (Direct) - Growth Option","Axis Large Cap Fund - Direct Plan - Growth","Mahindra Manulife Large Cap Fund - Direct Plan -Growth","ITI Large Cap Fund - Direct Plan - Growth Option","PGIM India Large Cap Fund - Direct Plan - Growth","Mirae Asset Large Cap Fund - Direct Plan - Growth","Kotak Large Cap  Fund - Growth - Direct","Nippon India Large Cap Fund - Direct Plan Growth Plan - Growth Option","BANK OF INDIA Large Cap Fund Direct Plan Growth","BANDHAN Large Cap Fund-Direct Plan-Growth","ICICI Prudential Large Cap Fund (erstwhile Bluechip Fund) - Direct Plan - Growth","Franklin India Large Cap Fund- Direct - Growth","HSBC Large Cap Fund - Direct Growth","Tata Large Cap Fund -Direct Plan Growth Option","BARODA BNP PARIBAS LARGE CAP Fund - Direct Plan - Growth Option","Edelweiss Large Cap Fund - Direct Plan-Growth option"],["-0.00041","0.00161","0.00285","-0.00129","0.00176","0.00074","-0.00054","0.0003","-0.0008","0.00075","0.00089","0.00117","0.00341","-0.00058","0.00161","0.00218","0.00123","0.00147","0.00035","0.00169","0.00171"],["0.96723","1.04455","1.03305","0.9201","0.8779","0.74692","1.08794","0.92755","0.86628","1.0062","0.98218","0.91572","0.96858","0.75739","0.90464","0.84258","0.86118","0.97712","0.87782","0.79222","0.88415"],["-0.03409","-0.08612","0.06568","0.1142","0.05024","0.08096","0.04328","-0.00558","-0.02186","0.03928","0.02805","0.03665","-0.06529","0.10628","0.08844","-0.03189","0.15258","0.01103","0.0473","0.10459","0.03553"],["-0.00613","-0.0626","-0.06416","-0.05171","0.09243","0.13083","-0.17563","0.01502","0.11714","-0.10429","-0.0678","-0.01064","0.04532","0.13104","-0.02636","0.05538","-0.07601","-0.01643","0.06797","0.05132","0.01983"],["<a href=\"/reports03/mf/analysis/rp-141248.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148507.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120392.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120267.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118870.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120490.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120465.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-146549.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148353.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-138312.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118825.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120152.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118632.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148980.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118479.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120586.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118531.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120030.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119160.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150187.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118617.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY 100 TR<\/th>\n      <th>NIFTY100 QUALITY 30 TR<\/th>\n      <th>NIFTY500 VALUE 50 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY 100 TR","targets":2},{"name":"NIFTY100 QUALITY 30 TR","targets":3},{"name":"NIFTY500 VALUE 50 TR","targets":4},{"name":"more","targets":5}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="mid-cap-funds" class="section level3">
+<h3>Mid-cap Funds</h3>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-7d28b76809d21ccc496f" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7d28b76809d21ccc496f">{"x":{"filter":"none","vertical":false,"data":[["Motilal Oswal Midcap Fund-Direct Plan-Growth Option","ICICI Prudential Mid Cap Fund - Direct Plan -  Growth","Aditya Birla Sun Life Midcap Fund - Growth - Direct Plan","Axis Nifty Midcap 50 Index Fund - Direct Plan - Growth Option","Union Midcap Fund - Direct Plan - Growth Option","UTI Mid Cap Fund-Growth Option- Direct","Sundaram Mid Cap Fund Direct Plan - Growth","Edelweiss Mid Cap Fund - Direct Plan - Growth Option","UTI Nifty Midcap 150 Quality 50 Index Fund - Direct Plan - Growth Option","Mirae Asset Midcap Fund - Direct Plan - Growth","Axis Midcap Fund - Direct Plan - Growth","SBI MIDCAP FUND - DIRECT PLAN - GROWTH","Invesco India Mid Cap Fund - Direct Plan - Growth Option","Mahindra Manulife Mid Cap Fund - Direct Plan -Growth","Nippon India Nifty Midcap 150 Index Fund - Direct Plan - Growth Option","DSP Midcap Fund - Direct Plan - Growth","BARODA BNP PARIBAS Mid Cap Fund - Direct Plan - Growth Option","ITI Mid Cap Fund - Direct Plan - Growth Option","Tata Mid Cap Fund - Direct Plan- Growth Option","quant Mid Cap Fund - Growth Option - Direct Plan","Taurus Mid Cap Fund - Direct Plan - Growth","PGIM India Midcap Fund - Direct Plan - Growth Option","ICICI Prudential Nifty Midcap 150 Index Fund - Direct Plan - Growth","Aditya Birla Sun Life Nifty Midcap 150 Index Fund-Direct Growth","Navi Nifty Midcap 150 Index Fund Direct Plan- Growth","HDFC Mid Cap Fund - Growth Option - Direct Plan"],["0.00448","0.00081","-0.00113","0.00033","0.00076","-0.00186","0.00141","0.00245","-0.00576","0.00004","-0.0015","-0.0004","0.00267","0.00102","-0.00029","-0.00209","0.00126","0.00009","0.00055","0.001","-0.00145","-0.00237","-0.00056","-0.00024","-0.00036","0.00391"],["0.92796","0.97301","0.92124","1.00744","0.89811","0.9169","0.92393","0.93453","0.89229","0.96317","0.84064","0.80368","0.97576","0.96459","0.99785","0.93319","0.83882","0.96432","0.88087","0.8959","0.96601","0.84048","0.99666","0.99971","0.99797","0.86396"],["<a href=\"/reports03/mf/analysis/rp-127042.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120381.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119620.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149936.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148073.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119581.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-140228.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150313.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-147445.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120505.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119716.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120403.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-142110.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119071.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150212.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148733.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119178.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120841.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118872.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-125307.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149389.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148807.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149892.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118989.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY MIDCAP 150 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY MIDCAP 150 TR","targets":2},{"name":"more","targets":3}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-2fb978a923de36d1bd14" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-2fb978a923de36d1bd14">{"x":{"filter":"none","vertical":false,"data":[["Motilal Oswal Midcap Fund-Direct Plan-Growth Option","ICICI Prudential Mid Cap Fund - Direct Plan -  Growth","Aditya Birla Sun Life Midcap Fund - Growth - Direct Plan","Axis Nifty Midcap 50 Index Fund - Direct Plan - Growth Option","Union Midcap Fund - Direct Plan - Growth Option","UTI Mid Cap Fund-Growth Option- Direct","Sundaram Mid Cap Fund Direct Plan - Growth","Edelweiss Mid Cap Fund - Direct Plan - Growth Option","UTI Nifty Midcap 150 Quality 50 Index Fund - Direct Plan - Growth Option","Mirae Asset Midcap Fund - Direct Plan - Growth","Axis Midcap Fund - Direct Plan - Growth","SBI MIDCAP FUND - DIRECT PLAN - GROWTH","Invesco India Mid Cap Fund - Direct Plan - Growth Option","Mahindra Manulife Mid Cap Fund - Direct Plan -Growth","Nippon India Nifty Midcap 150 Index Fund - Direct Plan - Growth Option","DSP Midcap Fund - Direct Plan - Growth","BARODA BNP PARIBAS Mid Cap Fund - Direct Plan - Growth Option","ITI Mid Cap Fund - Direct Plan - Growth Option","Tata Mid Cap Fund - Direct Plan- Growth Option","quant Mid Cap Fund - Growth Option - Direct Plan","Taurus Mid Cap Fund - Direct Plan - Growth","PGIM India Midcap Fund - Direct Plan - Growth Option","ICICI Prudential Nifty Midcap 150 Index Fund - Direct Plan - Growth","Aditya Birla Sun Life Nifty Midcap 150 Index Fund-Direct Growth","Navi Nifty Midcap 150 Index Fund Direct Plan- Growth","HDFC Mid Cap Fund - Growth Option - Direct Plan"],["0.00684","0.00087","0.00047","-0.00011","0.00255","0.00025","0.00225","0.00348","-0.0005","0.00018","0.00153","0.00104","0.00397","0.00064","-0.00027","0.00031","0.00116","0.00033","0.00153","-0.00216","-0.00118","-0.00054","-0.00054","-0.00029","-0.00031","0.00368"],["0.5202","0.96212","0.64406","1.08237","0.58921","0.56381","0.77895","0.75665","-0.02072","0.93907","0.34058","0.58227","0.75078","1.03062","0.99424","0.51815","0.85674","0.92295","0.7174","1.44098","0.91871","0.52499","0.9918","1.00736","0.98908","0.90216"],["0.45788","0.01238","0.31125","-0.08477","0.34687","0.39604","0.16279","0.19975","1.02219","0.02706","0.56553","0.25358","0.25263","-0.07415","0.00406","0.46606","-0.02011","0.04645","0.18335","-0.61209","0.05311","0.35426","0.00553","-0.00859","0.00998","-0.0429"],["<a href=\"/reports03/mf/analysis/rp-127042.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120381.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119620.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149936.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148073.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119581.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-140228.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150313.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-147445.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120505.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119716.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120403.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-142110.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119071.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150212.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148733.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119178.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120841.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118872.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-125307.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149389.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148807.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149892.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118989.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY MIDCAP 150 TR<\/th>\n      <th>NIFTY MIDCAP150 QUALITY 50 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY MIDCAP 150 TR","targets":2},{"name":"NIFTY MIDCAP150 QUALITY 50 TR","targets":3},{"name":"more","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-9536be2f5bb767a3e4d5" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-9536be2f5bb767a3e4d5">{"x":{"filter":"none","vertical":false,"data":[["Motilal Oswal Midcap Fund-Direct Plan-Growth Option","ICICI Prudential Mid Cap Fund - Direct Plan -  Growth","Aditya Birla Sun Life Midcap Fund - Growth - Direct Plan","Axis Nifty Midcap 50 Index Fund - Direct Plan - Growth Option","Union Midcap Fund - Direct Plan - Growth Option","UTI Mid Cap Fund-Growth Option- Direct","Sundaram Mid Cap Fund Direct Plan - Growth","Edelweiss Mid Cap Fund - Direct Plan - Growth Option","UTI Nifty Midcap 150 Quality 50 Index Fund - Direct Plan - Growth Option","Mirae Asset Midcap Fund - Direct Plan - Growth","Axis Midcap Fund - Direct Plan - Growth","SBI MIDCAP FUND - DIRECT PLAN - GROWTH","Invesco India Mid Cap Fund - Direct Plan - Growth Option","Mahindra Manulife Mid Cap Fund - Direct Plan -Growth","Nippon India Nifty Midcap 150 Index Fund - Direct Plan - Growth Option","DSP Midcap Fund - Direct Plan - Growth","BARODA BNP PARIBAS Mid Cap Fund - Direct Plan - Growth Option","ITI Mid Cap Fund - Direct Plan - Growth Option","Tata Mid Cap Fund - Direct Plan- Growth Option","quant Mid Cap Fund - Growth Option - Direct Plan","Taurus Mid Cap Fund - Direct Plan - Growth","PGIM India Midcap Fund - Direct Plan - Growth Option","ICICI Prudential Nifty Midcap 150 Index Fund - Direct Plan - Growth","Aditya Birla Sun Life Nifty Midcap 150 Index Fund-Direct Growth","Navi Nifty Midcap 150 Index Fund Direct Plan- Growth","HDFC Mid Cap Fund - Growth Option - Direct Plan"],["0.00663","0.00085","0.00047","-0.00007","0.00244","0.00021","0.00224","0.00345","-0.0005","0.0002","0.0014","0.001","0.00388","0.00069","-0.00027","0.00033","0.00117","0.00037","0.00155","-0.00209","-0.00114","-0.00062","-0.00054","-0.00029","-0.00031","0.0037"],["1.44663","0.7518","0.64447","1.02216","1.0657","0.72448","0.80356","0.8979","-0.02687","0.85731","0.6079","0.75728","1.15405","0.84207","0.99356","0.41519","0.82977","0.74372","0.64068","1.13722","0.74237","0.86538","0.98814","1.00479","0.99262","0.81805"],["-0.10655","0.14503","0.311","-0.05094","0.05656","0.29863","0.1478","0.11369","1.02572","0.07687","0.40526","0.15135","0.00694","0.04073","0.00447","0.52878","-0.00462","0.15565","0.22986","-0.42702","0.16055","0.14688","0.00783","-0.00702","0.00794","0.00835"],["-0.46652","0.10504","-0.00021","0.03167","-0.23995","-0.0813","-0.01239","-0.07113","0.00324","0.04117","-0.13392","-0.08934","-0.20307","0.09495","0.00034","0.05184","0.01424","0.09026","0.03882","0.15297","0.0888","-0.17141","0.00186","0.00129","-0.00187","0.04236"],["<a href=\"/reports03/mf/analysis/rp-127042.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120381.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119620.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149936.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148073.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119581.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-140228.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150313.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-147445.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120505.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119716.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120403.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-142110.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148726.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119071.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-150212.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148733.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-119178.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-120841.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118872.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-125307.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149389.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-148807.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-149892.html\" target=\"_blank\">>>><\/a>","<a href=\"/reports03/mf/analysis/rp-118989.html\" target=\"_blank\">>>><\/a>"]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th>FUND<\/th>\n      <th>ALPHA<\/th>\n      <th>NIFTY MIDCAP 150 TR<\/th>\n      <th>NIFTY MIDCAP150 QUALITY 50 TR<\/th>\n      <th>NIFTY500 VALUE 50 TR<\/th>\n      <th>more<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","pageLength":30,"columnDefs":[{"name":"FUND","targets":0},{"name":"ALPHA","targets":1},{"name":"NIFTY MIDCAP 150 TR","targets":2},{"name":"NIFTY MIDCAP150 QUALITY 50 TR","targets":3},{"name":"NIFTY500 VALUE 50 TR","targets":4},{"name":"more","targets":5}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,25,30,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+
+&nbsp;
+&nbsp;
+<hr />
+<p style="text-align: center;">Copyright &copy; 2023 SAS Data Analytics Pvt. Ltd. All rights reserved.</p>
+<p style="text-align: center;"><a href="https://github.com/stockviz/reports/issues">&#x1F41E;</a></p>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
